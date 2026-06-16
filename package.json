@@ -10,7 +10,7 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "prepare": "git config core.hooksPath .githooks",
+    "prepare": "[ -d .git ] && git config core.hooksPath .githooks || true",
     "postinstall": "prisma generate"
   },
   "dependencies": {
