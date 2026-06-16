@@ -80,10 +80,8 @@ describe("Integration Test - Buy + Rent + Renovate with ARV and 0 Duration", () 
     ];
 
     const timeline = calculateTimeline(blocks);
-    console.log("Timeline:", timeline);
 
     const loanInfo = getLoanInfo(blocks, timeline);
-    console.log("Loan Info:", loanInfo);
 
     const graphData = calculateGraphData(
       blocks,
@@ -93,9 +91,6 @@ describe("Integration Test - Buy + Rent + Renovate with ARV and 0 Duration", () 
       0,
       "2024-01-01",
     );
-    console.log("Graph Data (first 5 points):", graphData.slice(0, 5));
-    console.log("Graph Data (around renovation):", graphData.slice(47, 52));
-    console.log("Graph Data (last 5 points):", graphData.slice(-5));
 
     // Verify the timeline has all blocks
     expect(timeline).toHaveLength(3);
@@ -130,9 +125,6 @@ describe("Integration Test - Buy + Rent + Renovate with ARV and 0 Duration", () 
     // Verify ARV updates property value at the renovation completion month (48)
     const equityBeforeArv = graphData[47].equity;
     const equityAfterArv = graphData[48].equity;
-
-    console.log("Equity before ARV:", equityBeforeArv);
-    console.log("Equity after ARV:", equityAfterArv);
 
     // Equity should increase significantly after ARV is applied (property value jumps to $300,000)
     expect(equityAfterArv).toBeGreaterThan(equityBeforeArv);

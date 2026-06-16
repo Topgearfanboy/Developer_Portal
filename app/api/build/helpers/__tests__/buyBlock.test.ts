@@ -2,7 +2,7 @@ import { processBuyBlockData } from "../buyBlock";
 import { Block } from "@/types";
 
 describe("processBuyBlockData", () => {
-  it("should return null when no buy block exists", () => {
+  it.concurrent("should return null when no buy block exists", () => {
     const blocks: Block[] = [
       {
         id: "1",
@@ -26,13 +26,13 @@ describe("processBuyBlockData", () => {
     expect(result).toBeNull();
   });
 
-  it("should return null when blocks array is empty", () => {
+  it.concurrent("should return null when blocks array is empty", () => {
     const blocks: Block[] = [];
     const result = processBuyBlockData(blocks);
     expect(result).toBeNull();
   });
 
-  it("should process buy block with dollar downpayment", () => {
+  it.concurrent("should process buy block with dollar downpayment", () => {
     const blocks: Block[] = [
       {
         id: "1",
@@ -72,7 +72,7 @@ describe("processBuyBlockData", () => {
     expect(result?.loanTermYears).toBe(30);
   });
 
-  it("should process buy block with percentage downpayment", () => {
+  it.concurrent("should process buy block with percentage downpayment", () => {
     const blocks: Block[] = [
       {
         id: "1",
@@ -110,7 +110,7 @@ describe("processBuyBlockData", () => {
     expect(result?.loanAmount).toBe(80000);
   });
 
-  it("should handle cost with commas", () => {
+  it.concurrent("should handle cost with commas", () => {
     const blocks: Block[] = [
       {
         id: "1",

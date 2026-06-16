@@ -123,29 +123,7 @@ describe("Refinance 0.01 Rate Test", () => {
     // Find the 2035-01 month
     const targetMonth = graphData.find((month) => month.date === "2035-01");
 
-    console.log("Looking for 2035-01 month...");
-    console.log("Available months around 2035:");
-    graphData.forEach((month, index) => {
-      if (month.date.startsWith("2035")) {
-        console.log(
-          `Index ${index}: ${month.date} - monthlyNet: ${month.monthlyNet}`,
-        );
-      }
-    });
-
     expect(targetMonth).toBeDefined();
-    console.log(`Found 2035-01 monthlyNet: ${targetMonth!.monthlyNet}`);
-
-    // Let's also check a few months around the refinance to understand the pattern
-    console.log("Months around refinance:");
-    graphData.forEach((month, index) => {
-      if (index >= 50 && index <= 55) {
-        // Around the refinance period
-        console.log(
-          `Index ${index}: ${month.date} - monthlyNet: ${month.monthlyNet}`,
-        );
-      }
-    });
 
     // The refinance block sets taxes and insurance to 0, so monthlyNet should be just the mortgage payment
     expect(targetMonth!.monthlyNet).toBeCloseTo(-471.23, 2);

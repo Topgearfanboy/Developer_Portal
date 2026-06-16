@@ -1,6 +1,4 @@
-import { calculateTimeline } from "../helpers/timeline";
 import { calculateGraphData } from "../helpers/graph";
-import { getLoanInfo } from "../helpers/loanInfo";
 import { Block } from "@/types";
 
 describe("Integration Test - Refinance Cash Out", () => {
@@ -77,12 +75,6 @@ describe("Integration Test - Refinance Cash Out", () => {
       },
     ];
 
-    const timeline = calculateTimeline(blocks);
-    console.log("Timeline:", timeline);
-
-    const loanInfo = getLoanInfo(blocks, timeline);
-    console.log("Loan Info:", loanInfo);
-
     const graphData = calculateGraphData(
       blocks,
       30,
@@ -91,8 +83,6 @@ describe("Integration Test - Refinance Cash Out", () => {
       0,
       "2024-01-01",
     );
-    console.log("Graph Data (first 5 points):", graphData.slice(0, 5));
-    console.log("Graph Data (last 5 points):", graphData.slice(-5));
 
     // Find the refinance point (should be after 12 months of renting)
     const refinanceMonth = 12;
@@ -100,9 +90,6 @@ describe("Integration Test - Refinance Cash Out", () => {
       graphData[refinanceMonth - 1].remainingLoanBalance;
     const balanceAfterRefinance =
       graphData[refinanceMonth].remainingLoanBalance;
-
-    console.log("Balance before refinance (month 11):", balanceBeforeRefinance);
-    console.log("Balance after refinance (month 12):", balanceAfterRefinance);
 
     // The remaining loan balance should not increase when refinancing occurs
     // With cash out and empty cost, the new loan amount should be the remaining balance
@@ -113,9 +100,6 @@ describe("Integration Test - Refinance Cash Out", () => {
     // Verify that closing costs are accounted for in cash on hand
     const cashOnHandBeforeRefinance = graphData[refinanceMonth - 1].cashOnHand;
     const cashOnHandAfterRefinance = graphData[refinanceMonth].cashOnHand;
-
-    console.log("Cash on hand before refinance:", cashOnHandBeforeRefinance);
-    console.log("Cash on hand after refinance:", cashOnHandAfterRefinance);
 
     // Cash on hand should decrease (may be limited if cash on hand is low)
     expect(cashOnHandAfterRefinance).toBeLessThanOrEqual(
@@ -211,13 +195,9 @@ describe("Integration Test - Refinance Cash Out", () => {
       graphData[refinanceMonth - 1].remainingLoanBalance;
     const balanceAfterRefinance =
       graphData[refinanceMonth].remainingLoanBalance;
+    expect(balanceAfterRefinance).toBeGreaterThan(0);
     const cashOnHandBeforeRefinance = graphData[refinanceMonth - 1].cashOnHand;
     const cashOnHandAfterRefinance = graphData[refinanceMonth].cashOnHand;
-
-    console.log("Balance before refinance:", balanceBeforeRefinance);
-    console.log("Balance after refinance:", balanceAfterRefinance);
-    console.log("Cash on hand before refinance:", cashOnHandBeforeRefinance);
-    console.log("Cash on hand after refinance:", cashOnHandAfterRefinance);
 
     // The new loan amount should be $200,000
     // The remaining balance is ~$177,790
@@ -227,9 +207,6 @@ describe("Integration Test - Refinance Cash Out", () => {
     const expectedCashOut = 200000 - balanceBeforeRefinance;
     const closingCosts = 0.03 * 300000;
     const expectedNetCash = expectedCashOut - closingCosts;
-
-    console.log("Expected cash-out amount:", expectedCashOut);
-    console.log("Expected net cash after closing costs:", expectedNetCash);
 
     // Cash on hand should increase by the net cash-out amount (minus monthly payment for that month)
     expect(cashOnHandAfterRefinance).toBeGreaterThan(

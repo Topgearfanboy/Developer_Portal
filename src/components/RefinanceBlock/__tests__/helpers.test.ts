@@ -39,7 +39,7 @@ describe("RefinanceBlock Helpers", () => {
   });
 
   describe("updateField", () => {
-    it("updates a single field correctly", () => {
+    it.concurrent("updates a single field correctly", () => {
       const data = createMockData();
       updateField(data, mockOnChange, "estimatedValue", "500000");
 
@@ -49,7 +49,7 @@ describe("RefinanceBlock Helpers", () => {
       });
     });
 
-    it("updates boolean field correctly", () => {
+    it.concurrent("updates boolean field correctly", () => {
       const data = createMockData({ cashOut: false });
       updateField(data, mockOnChange, "cashOut", true);
 
@@ -61,53 +61,53 @@ describe("RefinanceBlock Helpers", () => {
   });
 
   describe("parseCurrencyValue", () => {
-    it("parses formatted currency strings", () => {
+    it.concurrent("parses formatted currency strings", () => {
       expect(parseCurrencyValue("$400,000")).toBe(400000);
     });
 
-    it("parses plain numbers", () => {
+    it.concurrent("parses plain numbers", () => {
       expect(parseCurrencyValue("400000")).toBe(400000);
     });
 
-    it("returns 0 for empty strings", () => {
+    it.concurrent("returns 0 for empty strings", () => {
       expect(parseCurrencyValue("")).toBe(0);
     });
 
-    it("handles decimal values", () => {
+    it.concurrent("handles decimal values", () => {
       expect(parseCurrencyValue("$400,000.50")).toBe(400000.5);
     });
   });
 
   describe("calculateLoanAmount", () => {
-    it("calculates loan amount correctly", () => {
+    it.concurrent("calculates loan amount correctly", () => {
       expect(calculateLoanAmount("$400,000", "$80,000")).toBe(320000);
     });
 
-    it("handles zero values", () => {
+    it.concurrent("handles zero values", () => {
       expect(calculateLoanAmount("", "")).toBe(0);
     });
   });
 
   describe("formatCurrencyDisplay", () => {
-    it("formats positive numbers with dollar sign", () => {
+    it.concurrent("formats positive numbers with dollar sign", () => {
       expect(formatCurrencyDisplay(320000)).toBe("$320,000");
     });
 
-    it("returns dash for zero", () => {
+    it.concurrent("returns dash for zero", () => {
       expect(formatCurrencyDisplay(0)).toBe("-");
     });
   });
 
   describe("formatPercentageDisplay", () => {
-    it("formats percentage string with % sign", () => {
+    it.concurrent("formats percentage string with % sign", () => {
       expect(formatPercentageDisplay("20")).toBe("20.00%");
     });
 
-    it("returns dash for zero", () => {
+    it.concurrent("returns dash for zero", () => {
       expect(formatPercentageDisplay("")).toBe("-");
     });
 
-    it("handles decimal percentages", () => {
+    it.concurrent("handles decimal percentages", () => {
       expect(formatPercentageDisplay("20.5")).toBe("20.50%");
     });
   });

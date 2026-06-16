@@ -28,7 +28,7 @@ describe("RenovateBlock Helpers", () => {
   });
 
   describe("addItem", () => {
-    it("adds a new empty item to the list", () => {
+    it.concurrent("adds a new empty item to the list", () => {
       const data = createMockData({ items: [] });
       addItem(data, mockOnChange);
 
@@ -38,7 +38,7 @@ describe("RenovateBlock Helpers", () => {
       });
     });
 
-    it("appends to existing items", () => {
+    it.concurrent("appends to existing items", () => {
       const existingItems: RenovationItem[] = [
         { item: "Kitchen", cost: "5000" },
       ];
@@ -56,7 +56,7 @@ describe("RenovateBlock Helpers", () => {
   });
 
   describe("removeItem", () => {
-    it("removes item at specified index", () => {
+    it.concurrent("removes item at specified index", () => {
       const items: RenovationItem[] = [
         { item: "Kitchen", cost: "5000" },
         { item: "Bathroom", cost: "3000" },
@@ -72,7 +72,7 @@ describe("RenovateBlock Helpers", () => {
   });
 
   describe("updateItem", () => {
-    it("updates the specified field of an item", () => {
+    it.concurrent("updates the specified field of an item", () => {
       const items: RenovationItem[] = [{ item: "Kitchen", cost: "5000" }];
       const data = createMockData({ items });
       updateItem(data, mockOnChange, 0, "cost", "6000");
@@ -85,7 +85,7 @@ describe("RenovateBlock Helpers", () => {
   });
 
   describe("calculateTotalCost", () => {
-    it("calculates total from formatted currency strings", () => {
+    it.concurrent("calculates total from formatted currency strings", () => {
       const items: RenovationItem[] = [
         { item: "Kitchen", cost: "$5,000" },
         { item: "Bathroom", cost: "$3,000" },
@@ -93,7 +93,7 @@ describe("RenovateBlock Helpers", () => {
       expect(calculateTotalCost(items)).toBe(8000);
     });
 
-    it("handles empty costs gracefully", () => {
+    it.concurrent("handles empty costs gracefully", () => {
       const items: RenovationItem[] = [
         { item: "Kitchen", cost: "" },
         { item: "Bathroom", cost: "$3,000" },
@@ -103,27 +103,27 @@ describe("RenovateBlock Helpers", () => {
   });
 
   describe("calculateTotalDays", () => {
-    it("calculates total days from days, months, and years", () => {
+    it.concurrent("calculates total days from days, months, and years", () => {
       const timeToRenovate = { days: "15", months: "2", years: "1" };
       expect(calculateTotalDays(timeToRenovate)).toBe(15 + 60 + 365);
     });
 
-    it("handles empty values as zeros", () => {
+    it.concurrent("handles empty values as zeros", () => {
       const timeToRenovate = { days: "", months: "", years: "" };
       expect(calculateTotalDays(timeToRenovate)).toBe(0);
     });
   });
 
   describe("calculateAverageCostPerItem", () => {
-    it("calculates average when both values are valid", () => {
+    it.concurrent("calculates average when both values are valid", () => {
       expect(calculateAverageCostPerItem(10000, 2)).toBe("$5,000");
     });
 
-    it("returns dash when item count is zero", () => {
+    it.concurrent("returns dash when item count is zero", () => {
       expect(calculateAverageCostPerItem(10000, 0)).toBe("-");
     });
 
-    it("returns dash when total cost is zero", () => {
+    it.concurrent("returns dash when total cost is zero", () => {
       expect(calculateAverageCostPerItem(0, 2)).toBe("-");
     });
   });

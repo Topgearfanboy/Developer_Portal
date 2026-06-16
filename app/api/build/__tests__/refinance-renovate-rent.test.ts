@@ -108,10 +108,8 @@ describe("Integration Test - Buy + Renovate + Rent + Refinance", () => {
     ];
 
     const timeline = calculateTimeline(blocks);
-    console.log("Timeline:", timeline);
 
     const loanInfo = getLoanInfo(blocks, timeline);
-    console.log("Loan Info:", loanInfo);
 
     const graphData = calculateGraphData(
       blocks,
@@ -121,8 +119,6 @@ describe("Integration Test - Buy + Renovate + Rent + Refinance", () => {
       0,
       "2024-01-01",
     );
-    console.log("Graph Data (first 5 points):", graphData.slice(0, 5));
-    console.log("Graph Data (last 5 points):", graphData.slice(-5));
 
     // Verify the timeline has all blocks
     expect(timeline).toHaveLength(4);
@@ -151,11 +147,9 @@ describe("Integration Test - Buy + Renovate + Rent + Refinance", () => {
     const refinanceMonth = 86; // 14 months renovate + 72 months rent
     const balanceBeforeRefinance =
       graphData[refinanceMonth - 1].remainingLoanBalance;
+    expect(balanceBeforeRefinance).toBeGreaterThan(0);
     const balanceAfterRefinance =
       graphData[refinanceMonth].remainingLoanBalance;
-
-    console.log("Balance before refinance:", balanceBeforeRefinance);
-    console.log("Balance after refinance:", balanceAfterRefinance);
 
     // With cost of $160,529, the refinance resets the loan to that amount.
     // graphData[refinanceMonth] reflects one month of amortization on the new
@@ -167,10 +161,7 @@ describe("Integration Test - Buy + Renovate + Rent + Refinance", () => {
     const cashOnHandBeforeRefinance = graphData[refinanceMonth - 1].cashOnHand;
     const cashOnHandAfterRefinance = graphData[refinanceMonth].cashOnHand;
     const expectedClosingCosts = 300000 * 0.03; // 3% of $300,000
-
-    console.log("Cash on hand before refinance:", cashOnHandBeforeRefinance);
-    console.log("Cash on hand after refinance:", cashOnHandAfterRefinance);
-    console.log("Expected closing costs:", expectedClosingCosts);
+    expect(expectedClosingCosts).toBe(9000);
 
     // Cash on hand should decrease (may be limited if cash on hand is low)
     expect(cashOnHandAfterRefinance).toBeLessThanOrEqual(
@@ -182,9 +173,6 @@ describe("Integration Test - Buy + Renovate + Rent + Refinance", () => {
     const renovationEndMonth = 14;
     const equityAfterRenovation = graphData[renovationEndMonth].equity;
     const equityBeforeRenovation = graphData[renovationEndMonth - 1].equity;
-
-    console.log("Equity before renovation ends:", equityBeforeRenovation);
-    console.log("Equity after renovation ends:", equityAfterRenovation);
 
     // Equity should increase significantly after ARV is applied (property value jumps to $350,000)
     expect(equityAfterRenovation).toBeGreaterThan(equityBeforeRenovation);

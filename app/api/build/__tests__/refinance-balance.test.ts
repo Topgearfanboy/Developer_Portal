@@ -81,11 +81,9 @@ describe("Integration Test - Refinance Balance", () => {
 
     // Calculate timeline
     const timeline = calculateTimeline(blocks);
-    console.log("Timeline:", timeline);
 
     // Get loan info (should use refinance)
     const loanInfo = getLoanInfo(blocks, timeline);
-    console.log("Loan Info:", loanInfo);
 
     // Calculate graph data
     const graphData = calculateGraphData(
