@@ -1,8 +1,27 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifyPassword, generateToken } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/rateLimit";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+  const { allowed, retryAfterMs } = checkRateLimit(`login:${ip}`, {
+    maxRequests: 10,
+    windowMs: 15 * 60 * 1000,
+  });
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many login attempts. Please try again later." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.ceil(retryAfterMs / 1000)),
+        },
+      },
+    );
+  }
   try {
     const { email, password } = await request.json();
 
@@ -58,7 +77,7 @@ export async function POST(request: Request) {
     // Set cookie directly on response
     response.cookies.set("auth-token", token, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7,
       path: "/",

@@ -72,6 +72,31 @@ export async function PUT(
     const body = await request.json();
     const { name, address, blocks, projectSettings } = body;
 
+    // Validate inputs before touching the DB
+    if (name !== undefined && (typeof name !== "string" || !name.trim())) {
+      return NextResponse.json(
+        { error: "Property name must be a non-empty string" },
+        { status: 400 },
+      );
+    }
+    if (blocks !== undefined && !Array.isArray(blocks)) {
+      return NextResponse.json(
+        { error: "blocks must be an array" },
+        { status: 400 },
+      );
+    }
+    if (
+      projectSettings !== undefined &&
+      (typeof projectSettings !== "object" ||
+        projectSettings === null ||
+        Array.isArray(projectSettings))
+    ) {
+      return NextResponse.json(
+        { error: "projectSettings must be an object" },
+        { status: 400 },
+      );
+    }
+
     // Verify ownership
     const existingProperty = await prisma.property.findFirst({
       where: {

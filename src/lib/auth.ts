@@ -2,8 +2,12 @@ import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || "your-secret-key-change-in-production";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error(
+    "JWT_SECRET environment variable is not set. Set it before starting the server.",
+  );
+}
 const COOKIE_NAME = "auth-token";
 
 export interface TokenPayload extends Record<string, unknown> {
@@ -32,7 +36,7 @@ export async function generateToken(payload: TokenPayload): Promise<string> {
 
 export async function verifyToken(token: string): Promise<TokenPayload | null> {
   try {
-    const secret = new TextEncoder().encode(JWT_SECRET);
+    const secret = new TextEncoder().encode(JWT_SECRET as string);
     const { payload } = await jwtVerify(token, secret);
     console.log("[AUTH] Token verified successfully:", payload.email);
     return { userId: payload.userId as string, email: payload.email as string };
@@ -43,24 +47,6 @@ export async function verifyToken(token: string): Promise<TokenPayload | null> {
     );
     return null;
   }
-}
-
-export async function setAuthCookie(token: string): Promise<void> {
-  const cookieStore = await cookies();
-  console.log(
-    "[AUTH] Setting cookie:",
-    COOKIE_NAME,
-    "token length:",
-    token.length,
-  );
-  cookieStore.set(COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: false, // Allow cookies on localhost for development
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-    path: "/",
-  });
-  console.log("[AUTH] Cookie set complete");
 }
 
 export async function removeAuthCookie(): Promise<void> {

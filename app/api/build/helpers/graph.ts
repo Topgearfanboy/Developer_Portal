@@ -337,9 +337,8 @@ export function calculateGraphData(
     }
 
     // Calculate interest rate and term for refinance
-    // If interest rate is empty, default to original loan's interest rate
-    const parsedRate = parseFloat(refinanceData.interestRate || "0");
-    const newRate = parsedRate > 0 ? parsedRate : buyBlockData.monthlyRate;
+    // If interest rate is empty, treat as 0% (payment = loanAmount / term months)
+    const newRate = parseFloat(refinanceData.interestRate || "0");
     const newTerm =
       refinanceData.loanTerm === "custom"
         ? parseInt(refinanceData.customLoanTerm) || 30

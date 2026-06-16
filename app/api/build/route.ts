@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Block, ProjectSettings } from "@/types";
 import { calculateBuildData } from "./helpers/buildData";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const blocks: Block[] = body.blocksJson ? JSON.parse(body.blocksJson) : [];

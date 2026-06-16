@@ -129,9 +129,9 @@ describe("Refinance with empty interest rate", () => {
     // Empty rate -> 0% -> payment = 169389 / (30 * 12) = 470.525
     const expectedRefinancePayment = 169389 / (30 * 12);
     // After refinance, taxes switch to refinance block's value: 1% of 300000 = $3000/yr.
-    // Insurance falls back to buy block ($740) since the refinance block left it empty.
+    // Insurance is empty in the refinance block, which means $0 (not inherited from buy block).
     // HOA stays at $0 (buy block).
-    const monthlyFixedExpenses = (0.01 * 300000) / 12 + 740 / 12;
+    const monthlyFixedExpenses = (0.01 * 300000) / 12;
 
     const impliedMortgage = -monthlyNet - monthlyFixedExpenses;
     expect(impliedMortgage).toBeCloseTo(expectedRefinancePayment, 1);
