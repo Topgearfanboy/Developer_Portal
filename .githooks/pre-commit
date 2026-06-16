@@ -1,0 +1,15 @@
+#!/bin/sh
+# Run tests before every commit. Abort the commit if any test fails.
+
+echo "Running tests before commit..."
+
+npm test -- --no-coverage
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Tests failed. Commit aborted. Fix the failing tests and try again."
+  exit 1
+fi
+
+echo "✅ All tests passed. Proceeding with commit."
+exit 0
