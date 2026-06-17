@@ -26,9 +26,6 @@ model Property {
   id          String   @id @default(uuid())
   name        String
   address     String?
-  description String?
-  squareFootage Int?
-  yearBuilt     Int?
   
   // JSON fields for flexible data storage
   projectSettings Json?  // Project configuration (purchasePrice, currentValue, years, cashStrategy, etc.)
