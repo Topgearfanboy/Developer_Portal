@@ -23,6 +23,7 @@ interface UseBlockManagerReturn {
 export function useBlockManager(
   initialBlocks: Block[] = [],
   projectSettings?: ProjectSettings,
+  propertyTaxRate?: number | null,
 ): UseBlockManagerReturn {
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
 
@@ -34,7 +35,10 @@ export function useBlockManager(
     if (type === "buy" && hasBuyBlock) return;
     if (type === "sell" && hasSellBlock) return;
 
-    const newBlock = createBlock(type);
+    const newBlock = createBlock(
+      type,
+      type === "buy" ? propertyTaxRate : undefined,
+    );
 
     // Calculate initial estimated value for refinance blocks
     if (type === "refinance" && projectSettings) {

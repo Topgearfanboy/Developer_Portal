@@ -21,7 +21,9 @@ export async function GET() {
       (dbProp: Record<string, unknown>) => ({
         id: dbProp.id as string,
         name: dbProp.name as string,
-        address: (dbProp.address as string) || "",
+        zipCode: (dbProp.zipCode as string) || "",
+        county: (dbProp.county as string) || "",
+        propertyTaxRate: (dbProp.propertyTaxRate as number) ?? null,
         blocks: (dbProp.blocks as Block[]) || [],
         projectSettings: {
           years: 30,
@@ -55,7 +57,9 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, address } = body;
+    const { name } = body;
+    const zipCode = body.zipCode?.trim().toLowerCase() || "";
+    const county = body.county?.trim().toLowerCase() || "";
 
     if (!name || !name.trim()) {
       return NextResponse.json(
@@ -64,10 +68,42 @@ export async function POST(request: Request) {
       );
     }
 
+    let propertyTaxRate: number | null = null;
+    const apiKey = process.env.NINJA_API_KEY;
+    if (zipCode && county && apiKey) {
+      try {
+        const countyRes = await fetch(
+          `https://api.api-ninjas.com/v1/propertytax?county=${encodeURIComponent(county.toLowerCase())}&zip=${encodeURIComponent(zipCode)}`,
+          { headers: { "X-Api-Key": apiKey } },
+        );
+        if (countyRes.ok) {
+          let taxData = await countyRes.json();
+          if (Array.isArray(taxData) && taxData.length === 0) {
+            const cityRes = await fetch(
+              `https://api.api-ninjas.com/v1/propertytax?city=${encodeURIComponent(county.toLowerCase())}&zip=${encodeURIComponent(zipCode)}`,
+              { headers: { "X-Api-Key": apiKey } },
+            );
+            if (cityRes.ok) taxData = await cityRes.json();
+          }
+          if (Array.isArray(taxData) && taxData.length > 0) {
+            propertyTaxRate = taxData[0].property_tax_50th_percentile ?? null;
+            console.log(
+              `[PROPERTY TAX] 50th percentile for ${county} ${zipCode}:`,
+              propertyTaxRate,
+            );
+          }
+        }
+      } catch (err) {
+        console.error("[PROPERTY TAX] Lookup failed:", err);
+      }
+    }
+
     const dbProperty = await prisma.property.create({
       data: {
         name: name.trim(),
-        address: address?.trim() || null,
+        zipCode: zipCode || null,
+        county: county || null,
+        propertyTaxRate,
         userId: user.userId,
         blocks: [],
         projectSettings: {
@@ -83,7 +119,9 @@ export async function POST(request: Request) {
     const property: Property = {
       id: dbProperty.id,
       name: dbProperty.name,
-      address: dbProperty.address || "",
+      zipCode: dbProperty.zipCode || "",
+      county: dbProperty.county || "",
+      propertyTaxRate: dbProperty.propertyTaxRate ?? null,
       blocks: [],
       projectSettings: {
         years: 30,

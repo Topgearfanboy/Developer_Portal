@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { HelpCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Property } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,7 +14,9 @@ export default function Home() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [showNewPropertyForm, setShowNewPropertyForm] = useState(false);
   const [newPropertyName, setNewPropertyName] = useState("");
-  const [newPropertyAddress, setNewPropertyAddress] = useState("");
+  const [newPropertyZipCode, setNewPropertyZipCode] = useState("");
+  const [newPropertyCounty, setNewPropertyCounty] = useState("");
+  const [showTaxTooltip, setShowTaxTooltip] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,19 +48,21 @@ export default function Home() {
   }, [authLoading, isAuthenticated, router]);
 
   const handleAddProperty = async () => {
-    if (!newPropertyName.trim() || !newPropertyAddress.trim()) {
-      alert("Please enter both property name and address");
+    if (!newPropertyName.trim()) {
+      alert("Please enter a property name");
       return;
     }
 
     try {
       const newProperty = await createNewProperty(
         newPropertyName,
-        newPropertyAddress,
+        newPropertyZipCode,
+        newPropertyCounty,
       );
       setProperties([...properties, newProperty]);
       setNewPropertyName("");
-      setNewPropertyAddress("");
+      setNewPropertyZipCode("");
+      setNewPropertyCounty("");
       setShowNewPropertyForm(false);
       setError(null);
     } catch (err) {
@@ -122,17 +127,54 @@ export default function Home() {
                 className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-text mb-2">
-                Address
-              </label>
-              <input
-                type="text"
-                value={newPropertyAddress}
-                onChange={(e) => setNewPropertyAddress(e.target.value)}
-                placeholder="e.g., 123 Main St, City, State"
-                className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              />
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <div className="flex items-center gap-1 mb-2">
+                  <label className="block text-sm font-medium text-text">
+                    Zip Code
+                  </label>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onMouseEnter={() => setShowTaxTooltip(true)}
+                      onMouseLeave={() => setShowTaxTooltip(false)}
+                      className="text-text-muted hover:text-primary transition-colors"
+                      aria-label="Property tax info"
+                    >
+                      <HelpCircle size={14} />
+                    </button>
+                    {showTaxTooltip && (
+                      <div className="absolute left-0 bottom-6 w-64 bg-white text-text text-xs rounded-lg p-3 shadow-lg z-50 border border-border">
+                        <p>
+                          We use the zip code and county to automatically look
+                          up the local property tax rate for this property.
+                        </p>
+                        <div className="absolute left-2 -bottom-1 w-2 h-2 bg-white border-r border-b border-border transform rotate-45"></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <input
+                  type="text"
+                  value={newPropertyZipCode}
+                  onChange={(e) => setNewPropertyZipCode(e.target.value)}
+                  placeholder="e.g., 90210"
+                  maxLength={10}
+                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-text mb-2">
+                  County
+                </label>
+                <input
+                  type="text"
+                  value={newPropertyCounty}
+                  onChange={(e) => setNewPropertyCounty(e.target.value)}
+                  placeholder="e.g., Los Angeles County"
+                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
             </div>
             <div className="flex gap-3">
               <button
@@ -145,7 +187,8 @@ export default function Home() {
                 onClick={() => {
                   setShowNewPropertyForm(false);
                   setNewPropertyName("");
-                  setNewPropertyAddress("");
+                  setNewPropertyZipCode("");
+                  setNewPropertyCounty("");
                 }}
                 className="px-4 py-2 bg-gray-100 text-text rounded-lg hover:bg-gray-200 font-medium transition-colors"
               >
@@ -232,7 +275,11 @@ export default function Home() {
               <h2 className="text-xl font-semibold text-text mb-1 group-hover:text-primary transition-colors">
                 {property.name}
               </h2>
-              <p className="text-sm text-text-muted mb-3">{property.address}</p>
+              <p className="text-sm text-text-muted mb-3">
+                {[property.zipCode, property.county]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
               <div className="flex items-center justify-between pt-3 border-t border-border">
                 <span className="text-xs text-text-muted">
                   {property.blocks.length} block

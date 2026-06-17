@@ -93,7 +93,10 @@ export const defaultSellData = (): SellBlockData => ({
   closingCostsType: "%",
 });
 
-export const createBlock = (type: BlockType): Block => {
+export const createBlock = (
+  type: BlockType,
+  propertyTaxRate?: number | null,
+): Block => {
   const id = `${type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
   let data:
@@ -105,6 +108,10 @@ export const createBlock = (type: BlockType): Block => {
   switch (type) {
     case "buy":
       data = defaultBuyData();
+      if (propertyTaxRate != null) {
+        data.propertyTaxes = (propertyTaxRate * 100).toFixed(4);
+        data.propertyTaxesType = "%";
+      }
       break;
     case "renovate":
       data = defaultRenovateData();

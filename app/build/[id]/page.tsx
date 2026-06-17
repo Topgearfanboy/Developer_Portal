@@ -84,7 +84,11 @@ export default function BuildProperty() {
     updateBlockData,
     hasBuyBlock,
     hasSellBlock,
-  } = useBlockManager(undefined, currentProjectSettings);
+  } = useBlockManager(
+    undefined,
+    currentProjectSettings,
+    property?.propertyTaxRate,
+  );
   const [metrics, setMetrics] = useState<{
     roi: number;
     cashOnCashReturn: number;
@@ -444,7 +448,9 @@ export default function BuildProperty() {
             ← Back to Dashboard
           </button>
           <h1 className="text-3xl font-bold text-text mb-2">{property.name}</h1>
-          <p className="text-text-muted">{property.address}</p>
+          <p className="text-text-muted">
+            {[property.zipCode, property.county].filter(Boolean).join(" · ")}
+          </p>
         </div>
         <div className="flex items-center gap-4">
           <ProjectSettingsPanel

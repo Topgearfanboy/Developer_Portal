@@ -25,7 +25,9 @@ model User {
 model Property {
   id          String   @id @default(uuid())
   name        String
-  address     String?
+  zipCode          String?
+  county           String?
+  propertyTaxRate  Float?
   
   // JSON fields for flexible data storage
   projectSettings Json?  // Project configuration (purchasePrice, currentValue, years, cashStrategy, etc.)

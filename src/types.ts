@@ -117,7 +117,9 @@ export interface ProjectSettings {
 export interface Property {
   id: string;
   name: string;
-  address: string;
+  zipCode: string;
+  county: string;
+  propertyTaxRate: number | null;
   blocks: Block[];
   projectSettings: ProjectSettings;
   createdAt: string;

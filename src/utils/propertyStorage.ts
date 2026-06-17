@@ -48,7 +48,8 @@ export async function saveProperty(property: Property): Promise<Property> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: property.name,
-        address: property.address,
+        zipCode: property.zipCode,
+        county: property.county,
         blocks: property.blocks,
         projectSettings: property.projectSettings,
       }),
@@ -89,12 +90,13 @@ export async function deleteProperty(id: string): Promise<void> {
 
 export async function createNewProperty(
   name: string,
-  address: string,
+  zipCode: string,
+  county: string,
 ): Promise<Property> {
   const response = await fetch("/api/properties", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, address }),
+    body: JSON.stringify({ name, zipCode, county }),
   });
 
   if (!response.ok) {

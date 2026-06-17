@@ -24,7 +24,8 @@ export async function GET() {
           select: {
             id: true,
             name: true,
-            address: true,
+            zipCode: true,
+            county: true,
             createdAt: true,
           },
         },

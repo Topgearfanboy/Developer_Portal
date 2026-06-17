@@ -33,7 +33,9 @@ export async function GET(
     const property: Property = {
       id: dbProperty.id,
       name: dbProperty.name,
-      address: dbProperty.address || "",
+      zipCode: dbProperty.zipCode || "",
+      county: dbProperty.county || "",
+      propertyTaxRate: dbProperty.propertyTaxRate ?? null,
       blocks: (dbProperty.blocks as Block[]) || [],
       projectSettings: {
         years: 30,
@@ -70,7 +72,7 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { name, address, blocks, projectSettings } = body;
+    const { name, zipCode, county, blocks, projectSettings } = body;
 
     // Validate inputs before touching the DB
     if (name !== undefined && (typeof name !== "string" || !name.trim())) {
@@ -114,13 +116,17 @@ export async function PUT(
 
     const updateData: {
       name?: string;
-      address?: string | null;
+      zipCode?: string | null;
+      county?: string | null;
       blocks?: Block[];
       projectSettings?: ProjectSettings;
     } = {};
 
     if (name !== undefined) updateData.name = name;
-    if (address !== undefined) updateData.address = address || null;
+    if (zipCode !== undefined)
+      updateData.zipCode = zipCode?.trim().toLowerCase() || null;
+    if (county !== undefined)
+      updateData.county = county?.trim().toLowerCase() || null;
     if (blocks !== undefined) updateData.blocks = blocks;
     if (projectSettings !== undefined)
       updateData.projectSettings = projectSettings;
@@ -133,7 +139,9 @@ export async function PUT(
     const property: Property = {
       id: dbProperty.id,
       name: dbProperty.name,
-      address: dbProperty.address || "",
+      zipCode: dbProperty.zipCode || "",
+      county: dbProperty.county || "",
+      propertyTaxRate: dbProperty.propertyTaxRate ?? null,
       blocks: (dbProperty.blocks as Block[]) || [],
       projectSettings: {
         years: 30,
