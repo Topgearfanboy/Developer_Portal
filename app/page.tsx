@@ -6,7 +6,11 @@ import { HelpCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Property } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
-import { getProperties, createNewProperty } from "@/utils/propertyStorage";
+import {
+  getProperties,
+  createNewProperty,
+  deactivateProperty,
+} from "@/utils/propertyStorage";
 
 export default function Home() {
   const router = useRouter();
@@ -19,6 +23,10 @@ export default function Home() {
   const [showTaxTooltip, setShowTaxTooltip] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(
+    null,
+  );
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -111,78 +119,22 @@ export default function Home() {
         </button>
       </div>
 
+      {/* New Property Modal */}
       {showNewPropertyForm && (
-        <div className="mb-8 bg-white rounded-xl shadow-sm border border-border p-6">
-          <h2 className="text-xl font-semibold text-text mb-4">New Property</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-text mb-2">
-                Property Name
-              </label>
-              <input
-                type="text"
-                value={newPropertyName}
-                onChange={(e) => setNewPropertyName(e.target.value)}
-                placeholder="e.g., Downtown Apartment"
-                className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <div className="flex gap-3">
-              <div className="flex-1">
-                <div className="flex items-center gap-1 mb-2">
-                  <label className="block text-sm font-medium text-text">
-                    Zip Code
-                  </label>
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onMouseEnter={() => setShowTaxTooltip(true)}
-                      onMouseLeave={() => setShowTaxTooltip(false)}
-                      className="text-text-muted hover:text-primary transition-colors"
-                      aria-label="Property tax info"
-                    >
-                      <HelpCircle size={14} />
-                    </button>
-                    {showTaxTooltip && (
-                      <div className="absolute left-0 bottom-6 w-64 bg-white text-text text-xs rounded-lg p-3 shadow-lg z-50 border border-border">
-                        <p>
-                          We use the zip code and county to automatically look
-                          up the local property tax rate for this property.
-                        </p>
-                        <div className="absolute left-2 -bottom-1 w-2 h-2 bg-white border-r border-b border-border transform rotate-45"></div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  value={newPropertyZipCode}
-                  onChange={(e) => setNewPropertyZipCode(e.target.value)}
-                  placeholder="e.g., 90210"
-                  maxLength={10}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-text mb-2">
-                  County
-                </label>
-                <input
-                  type="text"
-                  value={newPropertyCounty}
-                  onChange={(e) => setNewPropertyCounty(e.target.value)}
-                  placeholder="e.g., Los Angeles County"
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={handleAddProperty}
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark font-medium transition-colors"
-              >
-                Create Property
-              </button>
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowNewPropertyForm(false);
+              setNewPropertyName("");
+              setNewPropertyZipCode("");
+              setNewPropertyCounty("");
+            }
+          }}
+        >
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-text">New Property</h2>
               <button
                 onClick={() => {
                   setShowNewPropertyForm(false);
@@ -190,10 +142,106 @@ export default function Home() {
                   setNewPropertyZipCode("");
                   setNewPropertyCounty("");
                 }}
-                className="px-4 py-2 bg-gray-100 text-text rounded-lg hover:bg-gray-200 font-medium transition-colors"
+                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Close"
               >
-                Cancel
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
               </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-text mb-2">
+                  Property Name
+                </label>
+                <input
+                  type="text"
+                  value={newPropertyName}
+                  onChange={(e) => setNewPropertyName(e.target.value)}
+                  placeholder="e.g., Downtown Apartment"
+                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  autoFocus
+                />
+              </div>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-1 mb-2">
+                    <label className="block text-sm font-medium text-text">
+                      Zip Code
+                    </label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onMouseEnter={() => setShowTaxTooltip(true)}
+                        onMouseLeave={() => setShowTaxTooltip(false)}
+                        className="text-text-muted hover:text-primary transition-colors"
+                        aria-label="Property tax info"
+                      >
+                        <HelpCircle size={14} />
+                      </button>
+                      {showTaxTooltip && (
+                        <div className="absolute left-0 bottom-6 w-64 bg-white text-text text-xs rounded-lg p-3 shadow-lg z-50 border border-border">
+                          <p>
+                            We use the zip code and county to automatically look
+                            up the local property tax rate for this property.
+                          </p>
+                          <div className="absolute left-2 -bottom-1 w-2 h-2 bg-white border-r border-b border-border transform rotate-45"></div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <input
+                    type="text"
+                    value={newPropertyZipCode}
+                    onChange={(e) => setNewPropertyZipCode(e.target.value)}
+                    placeholder="e.g., 90210"
+                    maxLength={10}
+                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-text mb-2">
+                    County
+                  </label>
+                  <input
+                    type="text"
+                    value={newPropertyCounty}
+                    onChange={(e) => setNewPropertyCounty(e.target.value)}
+                    placeholder="e.g., Los Angeles County"
+                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={handleAddProperty}
+                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark font-medium transition-colors"
+                >
+                  Create Property
+                </button>
+                <button
+                  onClick={() => {
+                    setShowNewPropertyForm(false);
+                    setNewPropertyName("");
+                    setNewPropertyZipCode("");
+                    setNewPropertyCounty("");
+                  }}
+                  className="px-4 py-2 bg-gray-100 text-text rounded-lg hover:bg-gray-200 font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -252,14 +300,20 @@ export default function Home() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {properties.map((property) => (
-            <Link
+            <div
               key={property.id}
-              href={`/build/${property.id}`}
-              className="bg-white rounded-xl shadow-sm border border-border p-6 hover:shadow-lg hover:border-primary/50 transition-all group"
+              className="bg-white rounded-xl shadow-sm border border-border p-6 hover:shadow-lg hover:border-primary/50 transition-all group relative"
             >
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-200 transition-colors">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPropertyToDelete(property);
+                }}
+                className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                aria-label="Delete property"
+              >
                 <svg
-                  className="w-6 h-6 text-blue-600"
+                  className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -268,27 +322,123 @@ export default function Home() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 5h4"
+                    d="M6 18L18 6M6 6l12 12"
                   />
                 </svg>
-              </div>
-              <h2 className="text-xl font-semibold text-text mb-1 group-hover:text-primary transition-colors">
-                {property.name}
-              </h2>
-              <p className="text-sm text-text-muted mb-3">
-                {[property.zipCode, property.county]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-              <div className="flex items-center justify-between pt-3 border-t border-border">
-                <span className="text-xs text-text-muted">
-                  {property.blocks.length} block
-                  {property.blocks.length !== 1 ? "s" : ""}
-                </span>
-                <span className="text-xs font-medium text-primary">View →</span>
-              </div>
-            </Link>
+              </button>
+              <Link href={`/build/${property.id}`} className="block">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-200 transition-colors">
+                  <svg
+                    className="w-6 h-6 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 5h4"
+                    />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-semibold text-text mb-1 group-hover:text-primary transition-colors">
+                  {property.name}
+                </h2>
+                <p className="text-sm text-text-muted mb-3">
+                  {[property.zipCode, property.county]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+                <div className="flex items-center justify-between pt-3 border-t border-border">
+                  <span className="text-xs text-text-muted">
+                    {property.blocks.length} block
+                    {property.blocks.length !== 1 ? "s" : ""}
+                  </span>
+                  <span className="text-xs font-medium text-primary">
+                    View →
+                  </span>
+                </div>
+              </Link>
+            </div>
           ))}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {propertyToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-semibold text-text mb-2">
+              Delete Property?
+            </h3>
+            <p className="text-text-muted mb-6">
+              Are you sure you want to delete "{propertyToDelete.name}"? This
+              will mark it as inactive and hide it from your dashboard. You can
+              restore it later if needed.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setPropertyToDelete(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-gray-100 text-text rounded-lg hover:bg-gray-200 font-medium transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  setIsDeleting(true);
+                  try {
+                    await deactivateProperty(propertyToDelete.id);
+                    setProperties(
+                      properties.filter((p) => p.id !== propertyToDelete.id),
+                    );
+                    setPropertyToDelete(null);
+                  } catch (err) {
+                    if (
+                      err instanceof Error &&
+                      err.message === "Unauthorized"
+                    ) {
+                      router.push("/login");
+                    } else {
+                      setError("Failed to delete property");
+                    }
+                  } finally {
+                    setIsDeleting(false);
+                  }
+                }}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <svg
+                      className="w-4 h-4 animate-spin"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete Property"
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

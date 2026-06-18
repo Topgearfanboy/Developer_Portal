@@ -100,7 +100,9 @@ export default function DashboardPage() {
               >
                 <h3 className="text-lg font-semibold mb-2">{property.name}</h3>
                 <p className="text-gray-600">
-                  {property.address || "No address"}
+                  {[property.zipCode, property.county]
+                    .filter(Boolean)
+                    .join(" · ") || "No location"}
                 </p>
                 <p className="text-sm text-gray-500 mt-2">
                   Created: {new Date(property.createdAt).toLocaleDateString()}

@@ -36,6 +36,7 @@ export async function GET(
       zipCode: dbProperty.zipCode || "",
       county: dbProperty.county || "",
       propertyTaxRate: dbProperty.propertyTaxRate ?? null,
+      isActive: dbProperty.isActive ?? true,
       blocks: (dbProperty.blocks as Block[]) || [],
       projectSettings: {
         years: 30,
@@ -142,6 +143,7 @@ export async function PUT(
       zipCode: dbProperty.zipCode || "",
       county: dbProperty.county || "",
       propertyTaxRate: dbProperty.propertyTaxRate ?? null,
+      isActive: dbProperty.isActive ?? true,
       blocks: (dbProperty.blocks as Block[]) || [],
       projectSettings: {
         years: 30,
@@ -165,7 +167,7 @@ export async function PUT(
   }
 }
 
-// DELETE /api/properties/[id] - Delete a property
+// DELETE /api/properties/[id] - Soft delete (mark as inactive)
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -193,8 +195,10 @@ export async function DELETE(
       );
     }
 
-    await prisma.property.delete({
+    // Soft delete: mark as inactive instead of deleting
+    await prisma.property.update({
       where: { id },
+      data: { isActive: false },
     });
 
     return NextResponse.json({ success: true });

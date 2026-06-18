@@ -1,5 +1,7 @@
 TODO:
 
+- refinance smart property tax rates
+- add ninja api key to vercel
 - tests for remote property storage functionality
 - Add help messages
 - check cap rate formula

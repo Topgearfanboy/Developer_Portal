@@ -120,6 +120,7 @@ export interface Property {
   zipCode: string;
   county: string;
   propertyTaxRate: number | null;
+  isActive: boolean;
   blocks: Block[];
   projectSettings: ProjectSettings;
   createdAt: string;

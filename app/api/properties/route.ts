@@ -12,7 +12,7 @@ export async function GET() {
     }
 
     const dbProperties = await prisma.property.findMany({
-      where: { userId: user.userId },
+      where: { userId: user.userId, isActive: true },
       orderBy: { createdAt: "desc" },
     });
 
@@ -24,6 +24,7 @@ export async function GET() {
         zipCode: (dbProp.zipCode as string) || "",
         county: (dbProp.county as string) || "",
         propertyTaxRate: (dbProp.propertyTaxRate as number) ?? null,
+        isActive: (dbProp.isActive as boolean) ?? true,
         blocks: (dbProp.blocks as Block[]) || [],
         projectSettings: {
           years: 30,
@@ -122,6 +123,7 @@ export async function POST(request: Request) {
       zipCode: dbProperty.zipCode || "",
       county: dbProperty.county || "",
       propertyTaxRate: dbProperty.propertyTaxRate ?? null,
+      isActive: dbProperty.isActive ?? true,
       blocks: [],
       projectSettings: {
         years: 30,

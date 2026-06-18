@@ -28,14 +28,15 @@ model Property {
   zipCode          String?
   county           String?
   propertyTaxRate  Float?
-  
+  isActive         Boolean  @default(true)
+
   // JSON fields for flexible data storage
   projectSettings Json?  // Project configuration (purchasePrice, currentValue, years, cashStrategy, etc.)
   blocks    Json?        // Array of block data (buy, refinance, renovate, etc.)
-  
+
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

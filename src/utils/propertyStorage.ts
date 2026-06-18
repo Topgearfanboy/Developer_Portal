@@ -88,6 +88,24 @@ export async function deleteProperty(id: string): Promise<void> {
   }
 }
 
+export async function deactivateProperty(id: string): Promise<void> {
+  try {
+    const response = await fetch(`/api/properties/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error("Unauthorized");
+      }
+      throw new Error(`Failed to deactivate property: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error("Failed to deactivate property:", error);
+    throw error;
+  }
+}
+
 export async function createNewProperty(
   name: string,
   zipCode: string,
