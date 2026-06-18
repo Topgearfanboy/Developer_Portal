@@ -3,13 +3,25 @@
 
 echo "Running tests before commit..."
 
+# Run standard unit tests
+echo "📦 Running unit tests..."
 npm test -- --no-coverage
 
 if [ $? -ne 0 ]; then
   echo ""
-  echo "❌ Tests failed. Commit aborted. Fix the failing tests and try again."
+  echo "❌ Unit tests failed. Commit aborted. Fix the failing tests and try again."
   exit 1
 fi
 
-echo "✅ All tests passed. Proceeding with commit."
+# Run E2E tests
+echo "🎭 Running E2E tests..."
+npm run test:e2e
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ E2E tests failed. Commit aborted. Fix the failing tests and try again."
+  exit 1
+fi
+
+echo "✅ All tests passed (unit + E2E). Proceeding with commit."
 exit 0

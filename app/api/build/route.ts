@@ -22,7 +22,6 @@ export async function POST(request: NextRequest) {
 
     const result = await calculateBuildData(blocks, projectSettings);
 
-    console.log("Updating blocks:", result);
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
     console.error("Error in /api/build:", error);

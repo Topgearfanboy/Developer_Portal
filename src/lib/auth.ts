@@ -38,7 +38,6 @@ export async function verifyToken(token: string): Promise<TokenPayload | null> {
   try {
     const secret = new TextEncoder().encode(JWT_SECRET as string);
     const { payload } = await jwtVerify(token, secret);
-    console.log("[AUTH] Token verified successfully:", payload.email);
     return { userId: payload.userId as string, email: payload.email as string };
   } catch (error) {
     console.log(

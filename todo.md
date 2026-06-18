@@ -1,8 +1,8 @@
 TODO:
 
 - refinance smart property tax rates
-- add ninja api key to vercel
 - tests for remote property storage functionality
+- tax rate cost needs to increase by inflation rate to match increase in house price
 - Add help messages
 - check cap rate formula
 - when a refiancing block is placed its intial estimated value should be the intial purchase price then affected by the est home appreciation rate and the time it has been since the inital purchase

@@ -45,10 +45,7 @@ const securityHeaders = [
 
 const nextConfig = {
   output: 'standalone',
-  experimental: {
-    // Required for Railway deployment
-    serverComponentsExternalPackages: ['@prisma/client', '@prisma/adapter-pg'],
-  },
+  serverExternalPackages: ['@prisma/client', '@prisma/adapter-pg'],
   async headers() {
     return [
       {
