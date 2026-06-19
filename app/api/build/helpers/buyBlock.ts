@@ -7,6 +7,8 @@ export interface ProcessedBuyBlockData {
   cost: number;
   downpayment: number;
   propertyTaxes: number;
+  propertyTaxRate: number;
+  propertyTaxesType: "$" | "%";
   homeownersInsurance: number;
   annualHoa: number;
 }
@@ -73,6 +75,8 @@ export function processBuyBlockData(
     cost,
     downpayment,
     propertyTaxes,
+    propertyTaxRate: propertyTaxesRaw,
+    propertyTaxesType: buyData.propertyTaxesType,
     homeownersInsurance,
     annualHoa,
   };

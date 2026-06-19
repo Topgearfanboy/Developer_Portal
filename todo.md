@@ -1,18 +1,9 @@
 TODO:
 
-- refinance smart property tax rates
-- tests for remote property storage functionality
-- tax rate cost needs to increase by inflation rate to match increase in house price
+- Area Graph over time that shows the total income from a property and then the area under the curve is shaded to represent the different expenses
 - Add help messages
 - check cap rate formula
-- when a refiancing block is placed its intial estimated value should be the intial purchase price then affected by the est home appreciation rate and the time it has been since the inital purchase
-- properties should be saved to localStorage when created and we need to make a page that allows you to select local properties
-- there needs to be a way to export the generated graph data to a csv/xlsx/json file
-- Ai chat box in home evaluator
 - Inflation rate to home calculator
-- Automated data pulling for appreciation rates, tax rates etc based on locality
-  - property tax rate by zip code: https://api.api-ninjas.com/v1/zipcode
-- upload blocks into data base and implement login system
 - comparison to a stock market portfolio
 
 - Current House Tracking
@@ -40,3 +31,13 @@ Completed:
 - years dont line up
 - month at which rennovation occurs causes no rental income even if it is 0 days long. Probably needs to be calculated percentage wise. Not sure if this is an issue
 - fix monthly cost to own within rennovate block.
+- refinance smart property tax rates
+- tests for remote property storage functionality
+- tax rate cost needs to increase by inflation rate to match increase in house price
+- properties should be saved to localStorage when created and we need to make a page that allows you to select local properties
+- there needs to be a way to export the generated graph data to a csv/xlsx/json file
+- upload blocks into data base and implement login system
+- Automated data pulling for appreciation rates, tax rates etc based on locality
+  - property tax rate by zip code: https://api.api-ninjas.com/v1/zipcode
+- when a refiancing block is placed its intial estimated value should be the intial purchase price then affected by the est home appreciation rate and the time it has been since the inital purchase
+- Ai chat box in home evaluator

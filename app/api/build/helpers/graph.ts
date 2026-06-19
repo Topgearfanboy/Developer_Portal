@@ -215,6 +215,8 @@ export function calculateGraphData(
     monthlyRate,
     loanTermYears,
     propertyTaxes,
+    propertyTaxRate,
+    propertyTaxesType,
     homeownersInsurance,
     annualHoa,
   } = buyBlockData;
@@ -223,6 +225,8 @@ export function calculateGraphData(
   let monthlyPayment = 0;
   let refinanceMonthlyPayment = 0;
   let refinancePropertyTaxes = 0;
+  let refinancePropertyTaxRate = 0;
+  let refinancePropertyTaxesType: "$" | "%" = "$";
   let refinanceHomeownersInsurance = 0;
   if (loanAmount > 0 && monthlyRate > 0) {
     const monthlyRateDecimal = monthlyRate / 100 / 12;
@@ -361,6 +365,8 @@ export function calculateGraphData(
     const refTaxesRaw =
       parseFloat(refinanceData.propertyTaxes?.replace(/[^0-9.]/g, "") || "0") ||
       0;
+    refinancePropertyTaxRate = refTaxesRaw;
+    refinancePropertyTaxesType = refinanceData.propertyTaxesType;
     refinancePropertyTaxes =
       refinanceData.propertyTaxesType === "%"
         ? (refTaxesRaw / 100) * estimatedValue
@@ -421,6 +427,12 @@ export function calculateGraphData(
   let currentCashOnHand = 0; // Starting cash on hand
   let currentInvestedCapital = downpayment; // Starting invested capital
 
+  // Track annual tax amount — reassessed once per year against the appreciated value
+  let currentAnnualTaxes =
+    propertyTaxesType === "%"
+      ? (propertyTaxRate / 100) * propertyValue
+      : propertyTaxes;
+
   for (let i = 0; i < Math.min(loanBalances.length, maxMonths); i++) {
     const monthDate = new Date(
       currentDate.getFullYear(),
@@ -459,13 +471,22 @@ export function calculateGraphData(
     // (falling back to the buy block's if left empty). HOA always comes from the original purchase.
     const isPostRefinance =
       refinanceBlock && refinanceIndex >= 0 && i >= monthsBeforeRefinance;
-    const activeTaxes = isPostRefinance
-      ? refinancePropertyTaxes
-      : propertyTaxes;
+
+    // Reassess taxes annually (or immediately when crossing the refinance boundary)
+    if (i % 12 === 0 || i === monthsBeforeRefinance) {
+      currentAnnualTaxes = isPostRefinance
+        ? refinancePropertyTaxesType === "%"
+          ? (refinancePropertyTaxRate / 100) * propertyValue
+          : refinancePropertyTaxes
+        : propertyTaxesType === "%"
+          ? (propertyTaxRate / 100) * propertyValue
+          : propertyTaxes;
+    }
+
     const activeInsurance = isPostRefinance
       ? refinanceHomeownersInsurance
       : homeownersInsurance;
-    const monthlyPropertyTaxes = activeTaxes / 12;
+    const monthlyPropertyTaxes = currentAnnualTaxes / 12;
     const monthlyHomeownersInsurance = activeInsurance / 12;
     const monthlyHoa = annualHoa / 12;
     const monthlyFixedExpenses =

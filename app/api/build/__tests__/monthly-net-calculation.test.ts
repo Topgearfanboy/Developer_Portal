@@ -153,12 +153,14 @@ describe("Monthly Net Calculation Test", () => {
     const jan2026Data = graphData[jan2026Index];
 
     // At 2026-01, we should be in the second rent period with $2,100/month rent
-    // Expected calculation:
+    // Expected calculation (with annual tax reassessment against ARV $250k):
     // Rent: $2,100
-    // Mortgage payment: ~$1,328.36
+    // Mortgage payment: ~$1,079.19
+    // Property taxes: 1% of $250,000 / 12 = $208.33
+    // Homeowners insurance: $740 / 12 = $61.67
     // Maintenance (from rent block): $100
-    // Monthly Net = $2,100 - $1,328.36 - $100 = $671.64
-    expect(jan2026Data.monthlyNet).toBeCloseTo(671.64, 0);
+    // Monthly Net = $2,100 - $1,079.19 - $208.33 - $61.67 - $100 = $650.81
+    expect(jan2026Data.monthlyNet).toBeCloseTo(650.81, 0);
 
     // Verify mortgage payment is being deducted
     expect(jan2026Data.remainingLoanBalance).toBeGreaterThan(0);

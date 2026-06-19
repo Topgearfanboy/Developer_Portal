@@ -37,7 +37,7 @@ export function useBlockManager(
 
     const newBlock = createBlock(
       type,
-      type === "buy" ? propertyTaxRate : undefined,
+      type === "buy" || type === "refinance" ? propertyTaxRate : undefined,
     );
 
     // Calculate initial estimated value for refinance blocks

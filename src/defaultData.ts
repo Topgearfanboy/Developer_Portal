@@ -118,6 +118,10 @@ export const createBlock = (
       break;
     case "refinance":
       data = defaultRefinanceData();
+      if (propertyTaxRate != null) {
+        data.propertyTaxes = (propertyTaxRate * 100).toFixed(4);
+        data.propertyTaxesType = "%";
+      }
       break;
     case "rent":
       data = defaultRentData();
