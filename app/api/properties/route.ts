@@ -1,7 +1,29 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import type { Property, Block, ProjectSettings } from "@/types";
+
+// Validation schema for property creation
+const createPropertySchema = z.object({
+  name: z
+    .string()
+    .min(1, "Property name is required")
+    .max(100, "Property name too long"),
+  zipCode: z
+    .string()
+    .regex(
+      /^\d{5}(-\d{4})?$/,
+      "Zip code must be 5 digits (e.g., 90210) or 5+4 format (e.g., 90210-1234)",
+    )
+    .optional()
+    .or(z.literal("")),
+  county: z
+    .string()
+    .max(100, "County name too long")
+    .optional()
+    .or(z.literal("")),
+});
 
 // GET /api/properties - List all properties for the current user
 export async function GET() {
@@ -58,16 +80,24 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name } = body;
-    const zipCode = body.zipCode?.trim().toLowerCase() || "";
-    const county = body.county?.trim().toLowerCase() || "";
 
-    if (!name || !name.trim()) {
-      return NextResponse.json(
-        { error: "Property name is required" },
-        { status: 400 },
-      );
+    // Validate input with Zod
+    const validationResult = createPropertySchema.safeParse(body);
+    if (!validationResult.success) {
+      const formatted = validationResult.error.flatten();
+      const fieldErrors = formatted.fieldErrors;
+      const firstError =
+        Object.values(fieldErrors).flat()[0] || "Invalid input";
+      return NextResponse.json({ error: firstError }, { status: 400 });
     }
+
+    const {
+      name,
+      zipCode: rawZipCode,
+      county: rawCounty,
+    } = validationResult.data;
+    const zipCode = rawZipCode?.trim().toLowerCase() || "";
+    const county = rawCounty?.trim().toLowerCase() || "";
 
     let propertyTaxRate: number | null = null;
     const apiKey = process.env.NINJA_API_KEY;

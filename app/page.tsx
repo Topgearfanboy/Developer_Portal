@@ -20,9 +20,20 @@ export default function Home() {
   const [newPropertyName, setNewPropertyName] = useState("");
   const [newPropertyZipCode, setNewPropertyZipCode] = useState("");
   const [newPropertyCounty, setNewPropertyCounty] = useState("");
+  const [touched, setTouched] = useState({ name: false, zipCode: false });
   const [showTaxTooltip, setShowTaxTooltip] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Validation functions
+  const nameError = !newPropertyName.trim()
+    ? "Property name is required"
+    : null;
+  const zipCodeError =
+    newPropertyZipCode && !/^\d{5}(-\d{4})?$/.test(newPropertyZipCode)
+      ? "Zip code must be 5 digits (e.g., 90210) or 5+4 format"
+      : null;
+  const isFormValid = !nameError && !zipCodeError && newPropertyName.trim();
   const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(
     null,
   );
@@ -56,8 +67,10 @@ export default function Home() {
   }, [authLoading, isAuthenticated, router]);
 
   const handleAddProperty = async () => {
-    if (!newPropertyName.trim()) {
-      alert("Please enter a property name");
+    // Mark all fields as touched to show validation errors
+    setTouched({ name: true, zipCode: true });
+
+    if (!newPropertyName.trim() || zipCodeError) {
       return;
     }
 
@@ -169,10 +182,18 @@ export default function Home() {
                   type="text"
                   value={newPropertyName}
                   onChange={(e) => setNewPropertyName(e.target.value)}
+                  onBlur={() => setTouched((prev) => ({ ...prev, name: true }))}
                   placeholder="e.g., Downtown Apartment"
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
+                    touched.name && nameError
+                      ? "border-red-500"
+                      : "border-border"
+                  }`}
                   autoFocus
                 />
+                {touched.name && nameError && (
+                  <p className="text-red-500 text-sm mt-1">{nameError}</p>
+                )}
               </div>
               <div className="flex gap-3">
                 <div className="flex-1">
@@ -205,10 +226,20 @@ export default function Home() {
                     type="text"
                     value={newPropertyZipCode}
                     onChange={(e) => setNewPropertyZipCode(e.target.value)}
+                    onBlur={() =>
+                      setTouched((prev) => ({ ...prev, zipCode: true }))
+                    }
                     placeholder="e.g., 90210"
                     maxLength={10}
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
+                      touched.zipCode && zipCodeError
+                        ? "border-red-500"
+                        : "border-border"
+                    }`}
                   />
+                  {touched.zipCode && zipCodeError && (
+                    <p className="text-red-500 text-sm mt-1">{zipCodeError}</p>
+                  )}
                 </div>
                 <div className="flex-1">
                   <label className="block text-sm font-medium text-text mb-2">
@@ -226,7 +257,12 @@ export default function Home() {
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={handleAddProperty}
-                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark font-medium transition-colors"
+                  disabled={!isFormValid}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    isFormValid
+                      ? "bg-primary text-white hover:bg-primary-dark"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
                 >
                   Create Property
                 </button>
@@ -236,6 +272,7 @@ export default function Home() {
                     setNewPropertyName("");
                     setNewPropertyZipCode("");
                     setNewPropertyCounty("");
+                    setTouched({ name: false, zipCode: false });
                   }}
                   className="px-4 py-2 bg-gray-100 text-text rounded-lg hover:bg-gray-200 font-medium transition-colors"
                 >

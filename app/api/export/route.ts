@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import { Block, ProjectSettings } from "@/types";
 import { calculateBuildData } from "../build/helpers/buildData";
 import { getCurrentUser } from "@/lib/auth";
@@ -30,10 +30,11 @@ export async function POST(request: NextRequest) {
     const result = await calculateBuildData(blocks, exportSettings);
     const { graphData } = result;
 
-    const workbook = XLSX.utils.book_new();
+    const workbook = new ExcelJS.Workbook();
 
     // Summary sheet
-    const summarySheet = XLSX.utils.aoa_to_sheet([
+    const summarySheet = workbook.addWorksheet("Summary");
+    summarySheet.addRows([
       ["Financial Analysis Export"],
       [],
       ["Project Settings"],
@@ -50,25 +51,30 @@ export async function POST(request: NextRequest) {
       ["Monthly Payment", result.monthlyPayment],
       ["Total Months", graphData.length],
     ]);
-    XLSX.utils.book_append_sheet(workbook, summarySheet, "Summary");
 
     // Timeseries sheet — rows = metric types, columns = months
+    const timeseriesSheet = workbook.addWorksheet("Timeseries");
     const headers = ["Metric", ...graphData.map((d) => d.date)];
-    const timeseriesData = [
-      headers,
-      ["Cash on Hand", ...graphData.map((d) => d.cashOnHand)],
-      ["Equity", ...graphData.map((d) => d.equity)],
-      ["Invested Capital", ...graphData.map((d) => d.investedCapital)],
-      [
-        "Remaining Loan Balance",
-        ...graphData.map((d) => d.remainingLoanBalance),
-      ],
-      ["Monthly Net", ...graphData.map((d) => d.monthlyNet)],
-    ];
-    const timeseriesSheet = XLSX.utils.aoa_to_sheet(timeseriesData);
-    XLSX.utils.book_append_sheet(workbook, timeseriesSheet, "Timeseries");
+    timeseriesSheet.addRow(headers);
+    timeseriesSheet.addRow([
+      "Cash on Hand",
+      ...graphData.map((d) => d.cashOnHand),
+    ]);
+    timeseriesSheet.addRow(["Equity", ...graphData.map((d) => d.equity)]);
+    timeseriesSheet.addRow([
+      "Invested Capital",
+      ...graphData.map((d) => d.investedCapital),
+    ]);
+    timeseriesSheet.addRow([
+      "Remaining Loan Balance",
+      ...graphData.map((d) => d.remainingLoanBalance),
+    ]);
+    timeseriesSheet.addRow([
+      "Monthly Net",
+      ...graphData.map((d) => d.monthlyNet),
+    ]);
 
-    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+    const buffer = await workbook.xlsx.writeBuffer();
 
     return new NextResponse(buffer, {
       status: 200,
