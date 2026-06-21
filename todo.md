@@ -5,6 +5,8 @@ TODO:
 - check cap rate formula
 - Inflation rate to home calculator
 - comparison to a stock market portfolio
+- Remove Coming soon tag from ai agent when released publicly
+- CHECK THIS SHIT
 
 - Current House Tracking
   - Expense upload and tracking
@@ -14,6 +16,7 @@ TODO:
   - excel export
   - excel import
   - real world analytics of existing properties
+  - Offer predictions for the current house based on its existing data
 
 Pitch:
 

@@ -1,4 +1,5 @@
 import type { RentBlockData } from "../../types";
+import { FieldTooltip } from "../shared/FieldTooltip";
 import { CurrencyField } from "../uiComponents/fieldTypes/CurrencyField";
 import { CurrencyOrPercentageField } from "../uiComponents/fieldTypes/CurrencyOrPercentageField";
 import {
@@ -78,8 +79,9 @@ export function RentBlock({ data, onChange }: RentBlockProps) {
 
         {/* Vacancy */}
         <div>
-          <label className="block text-sm font-medium text-text-muted mb-1">
+          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
             Vacancy
+            <FieldTooltip text="The percentage of time or dollar amount lost to unoccupied periods. A typical vacancy rate is 5–10% of monthly rent." />
           </label>
           <CurrencyOrPercentageField
             value={data.vacancy}
@@ -93,8 +95,9 @@ export function RentBlock({ data, onChange }: RentBlockProps) {
 
         {/* Management */}
         <div>
-          <label className="block text-sm font-medium text-text-muted mb-1">
+          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
             Management
+            <FieldTooltip text="Property management fee, typically 8–12% of monthly rent. Enter 0 if self-managing." />
           </label>
           <CurrencyOrPercentageField
             value={data.management}
@@ -108,8 +111,9 @@ export function RentBlock({ data, onChange }: RentBlockProps) {
 
         {/* Maintenance */}
         <div>
-          <label className="block text-sm font-medium text-text-muted mb-1">
+          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
             Maintenance
+            <FieldTooltip text="Budget for ongoing repairs and upkeep. A common rule of thumb is 1% of the property value per year, or ~10% of monthly rent." />
           </label>
           <CurrencyOrPercentageField
             value={data.maintenance}
@@ -123,8 +127,9 @@ export function RentBlock({ data, onChange }: RentBlockProps) {
 
         {/* Annual Rent Increase */}
         <div>
-          <label className="block text-sm font-medium text-text-muted mb-1">
+          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
             Annual Rent Increase
+            <FieldTooltip text="The expected yearly increase in rent, applied each year of the rental period. Typically 2–5% to account for inflation and market growth." />
           </label>
           <CurrencyOrPercentageField
             value={data.annualRentIncrease || "0"}

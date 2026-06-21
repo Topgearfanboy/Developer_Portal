@@ -653,7 +653,7 @@ export default function BuildProperty() {
           {blocks.map((block, index) => (
             <div
               key={block.id}
-              className={`bg-white rounded-xl shadow-sm border border-border border-l-4 ${blockTypeColors[block.type]} overflow-hidden min-w-[380px] max-w-[420px] flex-shrink-0`}
+              className={`bg-white rounded-xl shadow-sm border border-border border-l-4 ${blockTypeColors[block.type]} min-w-[380px] max-w-[420px] flex-shrink-0`}
             >
               <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-border">
                 <h3 className="font-semibold text-text flex items-center gap-2">

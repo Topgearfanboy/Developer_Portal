@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { RefinanceBlockData } from "../../types";
+import { FieldTooltip } from "../shared/FieldTooltip";
 import { CurrencyField } from "../uiComponents/fieldTypes/CurrencyField";
 import { PercentageField } from "../uiComponents/fieldTypes/PercentageField";
 import { CurrencyOrPercentageField } from "../uiComponents/fieldTypes/CurrencyOrPercentageField";
@@ -29,8 +30,9 @@ export function RefinanceBlock({ data, onChange }: RefinanceBlockProps) {
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-text-muted mb-2">
+        <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-2">
           Refinance Type
+          <FieldTooltip text="Non Cash-out: replaces your loan at a better rate. Cash Out: takes out a new, larger loan and receives the difference in cash, pulling equity from the property." />
         </label>
         <div className="flex gap-4">
           <label className="flex items-center gap-2 cursor-pointer">
@@ -78,8 +80,9 @@ export function RefinanceBlock({ data, onChange }: RefinanceBlockProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-text-muted mb-1">
+          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
             Financed Amount
+            <FieldTooltip text="The total loan amount on the refinanced property. For Cash Out refinances this is typically 75–80% of the estimated value." />
           </label>
           <CurrencyOrPercentageField
             key={displayPercentage}
@@ -186,6 +189,7 @@ export function RefinanceBlock({ data, onChange }: RefinanceBlockProps) {
         <label htmlFor="interestOnly" className="text-sm text-text">
           Interest Only Loan
         </label>
+        <FieldTooltip text="When enabled, your monthly payment covers only the interest — no principal is paid down. This lowers monthly payments but builds no equity through repayment." />
       </div>
 
       {/* Monthly Payment */}
@@ -276,6 +280,7 @@ export function RefinanceBlock({ data, onChange }: RefinanceBlockProps) {
 
       <CollapsibleSection
         title="Remaining Equity"
+        tooltip="The equity you retain after the refinance — i.e., the difference between the property's estimated value and the new loan amount."
         expanded={remainingEquityExpanded}
         onToggle={() => setRemainingEquityExpanded(!remainingEquityExpanded)}
       >

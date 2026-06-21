@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { BuyBlockData } from "../../types";
+import { FieldTooltip } from "../shared/FieldTooltip";
 import { TextField } from "../uiComponents/fieldTypes/TextField";
 import { CurrencyField } from "../uiComponents/fieldTypes/CurrencyField";
 import { PercentageField } from "../uiComponents/fieldTypes/PercentageField";
@@ -71,8 +72,9 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-muted mb-1">
+          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
             Closing Costs
+            <FieldTooltip text="Fees paid at closing, typically 2–5% of the purchase price. Includes lender fees, title insurance, escrow, and other transaction costs." />
           </label>
           <CurrencyOrPercentageField
             value={data.closingCosts}
@@ -127,11 +129,16 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
           />
         </div>
 
-        <CurrencyField
-          label="HOA (Annual)"
-          value={data.annualHoa}
-          onChange={(value) => updateField("annualHoa", value)}
-        />
+        <div>
+          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
+            HOA (Annual)
+            <FieldTooltip text="Homeowners Association fee charged annually. Covers shared amenities and community maintenance. Enter 0 if not applicable." />
+          </label>
+          <CurrencyField
+            value={data.annualHoa}
+            onChange={(value) => updateField("annualHoa", value)}
+          />
+        </div>
 
         <div className="max-w-[200px] w-full">
           <label className="block text-sm font-medium text-text-muted mb-1">
@@ -159,6 +166,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
         <label htmlFor="interestOnly" className="text-sm font-medium">
           Interest Only Option
         </label>
+        <FieldTooltip text="When enabled, your monthly payment covers only the interest — no principal is paid down. This lowers monthly payments but builds no equity through repayment." />
       </div>
 
       {/* Purchase Summary with always-visible Monthly Payment */}
@@ -374,26 +382,38 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
             onChange={(value) => updateLoanAnalysis("incomeNeeded", value)}
             size="sm"
           />
-          <CurrencyField
-            label="Max Loan Based on ARV"
-            value={data.loanAnalysis.maxLoanBasedOnArv}
-            onChange={(value) => updateLoanAnalysis("maxLoanBasedOnArv", value)}
-            size="sm"
-          />
+          <div>
+            <label className="flex items-center gap-1 text-xs font-medium text-text-muted mb-1">
+              Max Loan Based on ARV
+              <FieldTooltip text="The maximum loan a lender will offer based on the After Repair Value (ARV) of the property — typically 70–75% of ARV for investment properties." />
+            </label>
+            <CurrencyField
+              value={data.loanAnalysis.maxLoanBasedOnArv}
+              onChange={(value) =>
+                updateLoanAnalysis("maxLoanBasedOnArv", value)
+              }
+              size="sm"
+            />
+          </div>
           <CurrencyField
             label="Initial Cash"
             value={data.loanAnalysis.initialCash}
             onChange={(value) => updateLoanAnalysis("initialCash", value)}
             size="sm"
           />
-          <CurrencyField
-            label="Saved For Renovation"
-            value={data.loanAnalysis.savedForRenovation}
-            onChange={(value) =>
-              updateLoanAnalysis("savedForRenovation", value)
-            }
-            size="sm"
-          />
+          <div>
+            <label className="flex items-center gap-1 text-xs font-medium text-text-muted mb-1">
+              Saved For Renovation
+              <FieldTooltip text="Cash you have set aside specifically for renovation costs, separate from your down payment and closing costs." />
+            </label>
+            <CurrencyField
+              value={data.loanAnalysis.savedForRenovation}
+              onChange={(value) =>
+                updateLoanAnalysis("savedForRenovation", value)
+              }
+              size="sm"
+            />
+          </div>
           <div className="col-span-2">
             <CurrencyField
               label="Minimum Cash For Project"

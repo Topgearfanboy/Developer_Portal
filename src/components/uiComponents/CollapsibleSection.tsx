@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
+import { FieldTooltip } from "../shared/FieldTooltip";
 
 interface CollapsibleSectionProps {
   title: string;
+  tooltip?: string;
   expanded: boolean;
   onToggle: () => void;
   children: ReactNode;
@@ -9,6 +11,7 @@ interface CollapsibleSectionProps {
 
 export function CollapsibleSection({
   title,
+  tooltip,
   expanded,
   onToggle,
   children,
@@ -20,7 +23,14 @@ export function CollapsibleSection({
         onClick={onToggle}
         className="flex items-center justify-between w-full text-left"
       >
-        <h4 className="font-semibold text-text">{title}</h4>
+        <div className="flex items-center gap-1">
+          <h4 className="font-semibold text-text">{title}</h4>
+          {tooltip && (
+            <span onClick={(e) => e.stopPropagation()}>
+              <FieldTooltip text={tooltip} />
+            </span>
+          )}
+        </div>
         <svg
           className={`w-5 h-5 text-text-muted transition-transform duration-200 shrink-0 ${
             expanded ? "rotate-180" : ""

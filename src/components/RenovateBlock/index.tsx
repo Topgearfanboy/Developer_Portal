@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { RenovateBlockData } from "../../types";
+import { FieldTooltip } from "../shared/FieldTooltip";
 import { CurrencyField } from "../uiComponents/fieldTypes/CurrencyField";
 import { AnalysisItem } from "../uiComponents/AnalysisItem";
 import { CollapsibleSection } from "../uiComponents/CollapsibleSection";
@@ -149,8 +150,9 @@ export function RenovateBlock({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-text-muted mb-2">
+        <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-2">
           After Repair Value (ARV)
+          <FieldTooltip text="The estimated market value of the property after all renovations are complete. Used to determine potential equity and refinancing options." />
         </label>
         <CurrencyField
           value={data.arv}
@@ -161,6 +163,7 @@ export function RenovateBlock({
 
       <CollapsibleSection
         title="Monthly Cost To Own"
+        tooltip="Ongoing monthly costs while you hold the property during renovation, such as utilities and mortgage payments."
         expanded={monthlyCostExpanded}
         onToggle={() => setMonthlyCostExpanded(!monthlyCostExpanded)}
       >
@@ -204,6 +207,7 @@ export function RenovateBlock({
           <label htmlFor="deferInterestPayments" className="text-sm text-text">
             Defer Interest Payments
           </label>
+          <FieldTooltip text="When checked, mortgage interest payments during renovation are not counted as a monthly cost. Useful if your lender allows interest to accrue and be paid at closing." />
         </div>
       </CollapsibleSection>
 
