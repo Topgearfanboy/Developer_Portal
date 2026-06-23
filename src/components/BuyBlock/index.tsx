@@ -1,19 +1,21 @@
 import { useState } from "react";
 import type { BuyBlockData } from "../../types";
-import { FieldTooltip } from "../shared/FieldTooltip";
 import { TextField } from "../uiComponents/fieldTypes/TextField";
 import { CurrencyField } from "../uiComponents/fieldTypes/CurrencyField";
 import { PercentageField } from "../uiComponents/fieldTypes/PercentageField";
-import { CurrencyOrPercentageField } from "../uiComponents/fieldTypes/CurrencyOrPercentageField";
+import { LabeledCurrencyOrPercentageField } from "../shared/LabeledCurrencyOrPercentageField";
 import { ButtonGroup } from "../uiComponents/ButtonGroup";
 import { AnalysisItem } from "../uiComponents/AnalysisItem";
 import { CollapsibleSection } from "../uiComponents/CollapsibleSection";
-import { SegmentedProgressBar } from "../uiComponents/SegmentedProgressBar";
+import { CheckboxField } from "../shared/CheckboxField";
+import { FieldLabel } from "../shared/FieldLabel";
+import { MonthlyPaymentSummary } from "../shared/MonthlyPaymentSummary";
 import {
   handleDownpaymentTypeChange,
   handleClosingCostsTypeChange,
   handlePropertyTaxesTypeChange,
   handleHomeownersInsuranceTypeChange,
+  calculatePurchaseSummary,
 } from "./helpers";
 
 interface BuyBlockProps {
@@ -57,34 +59,26 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
           onChange={(value) => updateField("interestRate", value)}
           data-testid="buy-interest-rate"
         />
-        <div>
-          <label className="block text-sm font-medium text-text-muted mb-1">
-            Downpayment
-          </label>
-          <CurrencyOrPercentageField
-            value={data.downpayment}
-            type={data.downpaymentType}
-            onChange={(value) => updateField("downpayment", value)}
-            onTypeChange={(type) =>
-              handleDownpaymentTypeChange(data, onChange, type)
-            }
-          />
-        </div>
+        <LabeledCurrencyOrPercentageField
+          label="Downpayment"
+          value={data.downpayment}
+          type={data.downpaymentType}
+          onChange={(value) => updateField("downpayment", value)}
+          onTypeChange={(type) =>
+            handleDownpaymentTypeChange(data, onChange, type)
+          }
+        />
 
-        <div>
-          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
-            Closing Costs
-            <FieldTooltip text="Fees paid at closing, typically 2–5% of the purchase price. Includes lender fees, title insurance, escrow, and other transaction costs." />
-          </label>
-          <CurrencyOrPercentageField
-            value={data.closingCosts}
-            type={data.closingCostsType}
-            onChange={(value) => updateField("closingCosts", value)}
-            onTypeChange={(type) =>
-              handleClosingCostsTypeChange(data, onChange, type)
-            }
-          />
-        </div>
+        <LabeledCurrencyOrPercentageField
+          label="Closing Costs"
+          tooltip="Fees paid at closing, typically 2–5% of the purchase price. Includes lender fees, title insurance, escrow, and other transaction costs."
+          value={data.closingCosts}
+          type={data.closingCostsType}
+          onChange={(value) => updateField("closingCosts", value)}
+          onTypeChange={(type) =>
+            handleClosingCostsTypeChange(data, onChange, type)
+          }
+        />
       </div>
 
       <ButtonGroup
@@ -116,10 +110,8 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="max-w-[200px] w-full">
-          <label className="block text-sm font-medium text-text-muted mb-1">
-            Property Taxes
-          </label>
-          <CurrencyOrPercentageField
+          <LabeledCurrencyOrPercentageField
+            label="Property Taxes"
             value={data.propertyTaxes}
             type={data.propertyTaxesType}
             onChange={(value) => updateField("propertyTaxes", value)}
@@ -130,10 +122,10 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
         </div>
 
         <div>
-          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
-            HOA (Annual)
-            <FieldTooltip text="Homeowners Association fee charged annually. Covers shared amenities and community maintenance. Enter 0 if not applicable." />
-          </label>
+          <FieldLabel
+            label="HOA (Annual)"
+            tooltip="Homeowners Association fee charged annually. Covers shared amenities and community maintenance. Enter 0 if not applicable."
+          />
           <CurrencyField
             value={data.annualHoa}
             onChange={(value) => updateField("annualHoa", value)}
@@ -141,10 +133,8 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
         </div>
 
         <div className="max-w-[200px] w-full">
-          <label className="block text-sm font-medium text-text-muted mb-1">
-            Insurance (Annual)
-          </label>
-          <CurrencyOrPercentageField
+          <LabeledCurrencyOrPercentageField
+            label="Insurance (Annual)"
             value={data.homeownersInsurance}
             type={data.homeownersInsuranceType}
             onChange={(value) => updateField("homeownersInsurance", value)}
@@ -155,87 +145,29 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          id="interestOnly"
-          checked={data.interestOnlyOption}
-          onChange={(e) => updateField("interestOnlyOption", e.target.checked)}
-          className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
-        />
-        <label htmlFor="interestOnly" className="text-sm font-medium">
-          Interest Only Option
-        </label>
-        <FieldTooltip text="When enabled, your monthly payment covers only the interest — no principal is paid down. This lowers monthly payments but builds no equity through repayment." />
-      </div>
+      <CheckboxField
+        id="interestOnly"
+        label="Interest Only Option"
+        checked={data.interestOnlyOption}
+        onChange={(checked) => updateField("interestOnlyOption", checked)}
+        tooltip="When enabled, your monthly payment covers only the interest — no principal is paid down. This lowers monthly payments but builds no equity through repayment."
+      />
 
       {/* Purchase Summary with always-visible Monthly Payment */}
       {(() => {
-        const costNum = parseFloat(data.cost.replace(/[^0-9.]/g, "")) || 0;
-
-        // Calculate downpayment in dollars based on type
-        const downpaymentRaw =
-          parseFloat(data.downpayment.replace(/[^0-9.]/g, "")) || 0;
-        const downpaymentNum =
-          data.downpaymentType === "%"
-            ? (downpaymentRaw / 100) * costNum
-            : downpaymentRaw;
-
-        // Calculate closing costs in dollars based on type
-        const closingRaw =
-          parseFloat(data.closingCosts.replace(/[^0-9.]/g, "")) || 0;
-        const closingNum =
-          data.closingCostsType === "%"
-            ? (closingRaw / 100) * costNum
-            : closingRaw;
-
-        const loanAmount = costNum - downpaymentNum;
-        const totalCashNeeded = downpaymentNum + closingNum;
-
-        // Calculate monthly payment using mortgage formula
-        const rateNum = parseFloat(data.interestRate) || 0;
-        const termYears =
-          data.loanTerm === "custom"
-            ? parseInt(data.customLoanTerm) || 30
-            : parseInt(data.loanTerm) || 30;
-        const monthlyRate = rateNum / 100 / 12;
-        const numPayments = termYears * 12;
-        let monthlyPayment = 0;
-        if (loanAmount > 0 && rateNum > 0) {
-          if (data.interestOnlyOption) {
-            monthlyPayment = loanAmount * monthlyRate;
-          } else {
-            monthlyPayment =
-              (loanAmount *
-                monthlyRate *
-                Math.pow(1 + monthlyRate, numPayments)) /
-              (Math.pow(1 + monthlyRate, numPayments) - 1);
-          }
-        } else if (loanAmount > 0) {
-          monthlyPayment = loanAmount / numPayments;
-        }
-
-        // Calculate monthly property taxes
-        const propertyTaxesNum = parseFloat(data.propertyTaxes) || 0;
-        const monthlyPropertyTaxes =
-          data.propertyTaxesType === "%"
-            ? ((propertyTaxesNum / 100) * costNum) / 12
-            : propertyTaxesNum / 12;
-
-        // Calculate monthly homeowners insurance
-        const insuranceNum = parseFloat(data.homeownersInsurance) || 0;
-        const monthlyInsurance =
-          data.homeownersInsuranceType === "%"
-            ? ((insuranceNum / 100) * costNum) / 12
-            : insuranceNum / 12;
-
-        // Calculate monthly HOA
-        const annualHoaNum =
-          parseFloat(data.annualHoa.replace(/[^0-9.]/g, "")) || 0;
-        const monthlyHoa = annualHoaNum / 12;
-
-        const totalMonthlyPayment =
-          monthlyPayment + monthlyPropertyTaxes + monthlyInsurance + monthlyHoa;
+        const summary = calculatePurchaseSummary(data);
+        const {
+          costNum,
+          downpaymentNum,
+          closingNum,
+          loanAmount,
+          totalCashNeeded,
+          principalAndInterest,
+          propertyTaxes,
+          homeownersInsurance,
+          hoa,
+          totalMonthlyPayment,
+        } = summary;
 
         return (
           <div className="bg-bg rounded-lg p-4 space-y-3">
@@ -264,46 +196,13 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
               </svg>
             </button>
 
-            {/* Monthly Payment - Always Visible */}
-            <div>
-              <AnalysisItem
-                label="Monthly Payment"
-                value={
-                  totalMonthlyPayment > 0
-                    ? `$${totalMonthlyPayment.toLocaleString("en-US", {
-                        maximumFractionDigits: 2,
-                      })}`
-                    : "-"
-                }
-                highlight
-                noBorder
-              />
-              <SegmentedProgressBar
-                segments={[
-                  {
-                    value: monthlyPayment,
-                    color: "bg-blue-500",
-                    label: "Loan",
-                  },
-                  {
-                    value: monthlyPropertyTaxes,
-                    color: "bg-emerald-500",
-                    label: "Tax",
-                  },
-                  {
-                    value: monthlyInsurance,
-                    color: "bg-amber-500",
-                    label: "Insurance",
-                  },
-                  {
-                    value: monthlyHoa,
-                    color: "bg-purple-500",
-                    label: "HOA",
-                  },
-                ]}
-                total={totalMonthlyPayment}
-              />
-            </div>
+            <MonthlyPaymentSummary
+              totalMonthlyPayment={totalMonthlyPayment}
+              principalAndInterest={principalAndInterest}
+              propertyTaxes={propertyTaxes}
+              homeownersInsurance={homeownersInsurance}
+              hoa={hoa}
+            />
 
             {/* Collapsible Details */}
             {purchaseSummaryExpanded && (
@@ -383,10 +282,11 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
             size="sm"
           />
           <div>
-            <label className="flex items-center gap-1 text-xs font-medium text-text-muted mb-1">
-              Max Loan Based on ARV
-              <FieldTooltip text="The maximum loan a lender will offer based on the After Repair Value (ARV) of the property — typically 70–75% of ARV for investment properties." />
-            </label>
+            <FieldLabel
+              label="Max Loan Based on ARV"
+              tooltip="The maximum loan a lender will offer based on the After Repair Value (ARV) of the property — typically 70–75% of ARV for investment properties."
+              size="xs"
+            />
             <CurrencyField
               value={data.loanAnalysis.maxLoanBasedOnArv}
               onChange={(value) =>
@@ -402,10 +302,11 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
             size="sm"
           />
           <div>
-            <label className="flex items-center gap-1 text-xs font-medium text-text-muted mb-1">
-              Saved For Renovation
-              <FieldTooltip text="Cash you have set aside specifically for renovation costs, separate from your down payment and closing costs." />
-            </label>
+            <FieldLabel
+              label="Saved For Renovation"
+              tooltip="Cash you have set aside specifically for renovation costs, separate from your down payment and closing costs."
+              size="xs"
+            />
             <CurrencyField
               value={data.loanAnalysis.savedForRenovation}
               onChange={(value) =>

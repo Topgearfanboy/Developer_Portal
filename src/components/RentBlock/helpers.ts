@@ -1,126 +1,49 @@
 import type { RentBlockData } from "../../types";
+import { createTypeChangeHandler } from "../../utils/valueTypeConverter";
 
-export function handleVacancyTypeChange(
+const getMonthlyRentBase = (data: RentBlockData) =>
+  parseFloat(data.monthlyRent.replace(/[^0-9.]/g, "")) || 0;
+
+export const handleVacancyTypeChange = (
   data: RentBlockData,
   onChange: (data: RentBlockData) => void,
   newType: "$" | "%",
-) {
-  const rentNum = parseFloat(data.monthlyRent.replace(/[^0-9.]/g, "")) || 0;
-  const vacancyNum = parseFloat(data.vacancy) || 0;
+) =>
+  createTypeChangeHandler(data, onChange, {
+    typeField: "vacancyType",
+    valueField: "vacancy",
+    getBaseAmount: getMonthlyRentBase,
+  })(newType);
 
-  let convertedVacancy: string;
-
-  if (data.vacancyType === "%" && newType === "$") {
-    // Converting from % to $: vacancy % of monthly rent
-    convertedVacancy =
-      rentNum > 0
-        ? Math.round((vacancyNum / 100) * rentNum).toString()
-        : data.vacancy;
-  } else if (data.vacancyType === "$" && newType === "%") {
-    // Converting from $ to %: (vacancy / rent) * 100
-    convertedVacancy =
-      rentNum > 0 ? ((vacancyNum / rentNum) * 100).toFixed(2) : data.vacancy;
-  } else {
-    convertedVacancy = data.vacancy;
-  }
-
-  onChange({
-    ...data,
-    vacancyType: newType,
-    vacancy: convertedVacancy,
-  });
-}
-
-export function handleManagementTypeChange(
+export const handleManagementTypeChange = (
   data: RentBlockData,
   onChange: (data: RentBlockData) => void,
   newType: "$" | "%",
-) {
-  const rentNum = parseFloat(data.monthlyRent.replace(/[^0-9.]/g, "")) || 0;
-  const managementNum = parseFloat(data.management) || 0;
+) =>
+  createTypeChangeHandler(data, onChange, {
+    typeField: "managementType",
+    valueField: "management",
+    getBaseAmount: getMonthlyRentBase,
+  })(newType);
 
-  let convertedManagement: string;
-
-  if (data.managementType === "%" && newType === "$") {
-    convertedManagement =
-      rentNum > 0
-        ? Math.round((managementNum / 100) * rentNum).toString()
-        : data.management;
-  } else if (data.managementType === "$" && newType === "%") {
-    convertedManagement =
-      rentNum > 0
-        ? ((managementNum / rentNum) * 100).toFixed(2)
-        : data.management;
-  } else {
-    convertedManagement = data.management;
-  }
-
-  onChange({
-    ...data,
-    managementType: newType,
-    management: convertedManagement,
-  });
-}
-
-export function handleMaintenanceTypeChange(
+export const handleMaintenanceTypeChange = (
   data: RentBlockData,
   onChange: (data: RentBlockData) => void,
   newType: "$" | "%",
-) {
-  const rentNum = parseFloat(data.monthlyRent.replace(/[^0-9.]/g, "")) || 0;
-  const maintenanceNum = parseFloat(data.maintenance) || 0;
+) =>
+  createTypeChangeHandler(data, onChange, {
+    typeField: "maintenanceType",
+    valueField: "maintenance",
+    getBaseAmount: getMonthlyRentBase,
+  })(newType);
 
-  let convertedMaintenance: string;
-
-  if (data.maintenanceType === "%" && newType === "$") {
-    convertedMaintenance =
-      rentNum > 0
-        ? Math.round((maintenanceNum / 100) * rentNum).toString()
-        : data.maintenance;
-  } else if (data.maintenanceType === "$" && newType === "%") {
-    convertedMaintenance =
-      rentNum > 0
-        ? ((maintenanceNum / rentNum) * 100).toFixed(2)
-        : data.maintenance;
-  } else {
-    convertedMaintenance = data.maintenance;
-  }
-
-  onChange({
-    ...data,
-    maintenanceType: newType,
-    maintenance: convertedMaintenance,
-  });
-}
-
-export function handleAnnualRentIncreaseTypeChange(
+export const handleAnnualRentIncreaseTypeChange = (
   data: RentBlockData,
   onChange: (data: RentBlockData) => void,
   newType: "$" | "%",
-) {
-  const rentNum = parseFloat(data.monthlyRent.replace(/[^0-9.]/g, "")) || 0;
-  const annualRentIncreaseNum = parseFloat(data.annualRentIncrease || "0") || 0;
-  const currentType = data.annualRentIncreaseType || "%";
-
-  let convertedAnnualRentIncrease: string;
-
-  if (currentType === "%" && newType === "$") {
-    convertedAnnualRentIncrease =
-      rentNum > 0
-        ? Math.round((annualRentIncreaseNum / 100) * rentNum).toString()
-        : data.annualRentIncrease || "0";
-  } else if (currentType === "$" && newType === "%") {
-    convertedAnnualRentIncrease =
-      rentNum > 0
-        ? ((annualRentIncreaseNum / rentNum) * 100).toFixed(2)
-        : data.annualRentIncrease || "0";
-  } else {
-    convertedAnnualRentIncrease = data.annualRentIncrease || "0";
-  }
-
-  onChange({
-    ...data,
-    annualRentIncreaseType: newType,
-    annualRentIncrease: convertedAnnualRentIncrease,
-  });
-}
+) =>
+  createTypeChangeHandler(data, onChange, {
+    typeField: "annualRentIncreaseType",
+    valueField: "annualRentIncrease",
+    getBaseAmount: getMonthlyRentBase,
+  })(newType);

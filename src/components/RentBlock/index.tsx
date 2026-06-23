@@ -1,7 +1,7 @@
 import type { RentBlockData } from "../../types";
-import { FieldTooltip } from "../shared/FieldTooltip";
 import { CurrencyField } from "../uiComponents/fieldTypes/CurrencyField";
-import { CurrencyOrPercentageField } from "../uiComponents/fieldTypes/CurrencyOrPercentageField";
+import { LabeledCurrencyOrPercentageField } from "../shared/LabeledCurrencyOrPercentageField";
+import { TimePeriodSelector } from "../shared/TimePeriodSelector";
 import {
   handleVacancyTypeChange,
   handleManagementTypeChange,
@@ -41,105 +41,62 @@ export function RentBlock({ data, onChange }: RentBlockProps) {
           data-testid="rent-monthly-rent"
         />
 
-        {/* Time Rented - Months and Years */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="block text-sm font-medium text-text-muted mb-1">
-              Months
-            </label>
-            <select
-              value={data.timeRentedMonths}
-              onChange={(e) => updateField("timeRentedMonths", e.target.value)}
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-bg"
-            >
-              {Array.from({ length: 12 }, (_, i) => (
-                <option key={i} value={i.toString()}>
-                  {i}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-text-muted mb-1">
-              Years
-            </label>
-            <select
-              value={data.timeRentedYears}
-              onChange={(e) => updateField("timeRentedYears", e.target.value)}
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-bg"
-            >
-              {Array.from({ length: 31 }, (_, i) => (
-                <option key={i} value={i.toString()}>
-                  {i}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+        <TimePeriodSelector
+          label="Time Rented"
+          values={{
+            months: data.timeRentedMonths,
+            years: data.timeRentedYears,
+          }}
+          units={[
+            { key: "months", label: "Months", max: 12 },
+            { key: "years", label: "Years", max: 31 },
+          ]}
+          onChange={(key, value) =>
+            updateField(key as "timeRentedMonths" | "timeRentedYears", value)
+          }
+        />
 
-        {/* Vacancy */}
-        <div>
-          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
-            Vacancy
-            <FieldTooltip text="The percentage of time or dollar amount lost to unoccupied periods. A typical vacancy rate is 5–10% of monthly rent." />
-          </label>
-          <CurrencyOrPercentageField
-            value={data.vacancy}
-            type={data.vacancyType}
-            onChange={(value) => updateField("vacancy", value)}
-            onTypeChange={(type) =>
-              handleVacancyTypeChange(data, onChange, type)
-            }
-          />
-        </div>
+        <LabeledCurrencyOrPercentageField
+          label="Vacancy"
+          tooltip="The percentage of time or dollar amount lost to unoccupied periods. A typical vacancy rate is 5–10% of monthly rent."
+          value={data.vacancy}
+          type={data.vacancyType}
+          onChange={(value) => updateField("vacancy", value)}
+          onTypeChange={(type) => handleVacancyTypeChange(data, onChange, type)}
+        />
 
-        {/* Management */}
-        <div>
-          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
-            Management
-            <FieldTooltip text="Property management fee, typically 8–12% of monthly rent. Enter 0 if self-managing." />
-          </label>
-          <CurrencyOrPercentageField
-            value={data.management}
-            type={data.managementType}
-            onChange={(value) => updateField("management", value)}
-            onTypeChange={(type) =>
-              handleManagementTypeChange(data, onChange, type)
-            }
-          />
-        </div>
+        <LabeledCurrencyOrPercentageField
+          label="Management"
+          tooltip="Property management fee, typically 8–12% of monthly rent. Enter 0 if self-managing."
+          value={data.management}
+          type={data.managementType}
+          onChange={(value) => updateField("management", value)}
+          onTypeChange={(type) =>
+            handleManagementTypeChange(data, onChange, type)
+          }
+        />
 
-        {/* Maintenance */}
-        <div>
-          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
-            Maintenance
-            <FieldTooltip text="Budget for ongoing repairs and upkeep. A common rule of thumb is 1% of the property value per year, or ~10% of monthly rent." />
-          </label>
-          <CurrencyOrPercentageField
-            value={data.maintenance}
-            type={data.maintenanceType}
-            onChange={(value) => updateField("maintenance", value)}
-            onTypeChange={(type) =>
-              handleMaintenanceTypeChange(data, onChange, type)
-            }
-          />
-        </div>
+        <LabeledCurrencyOrPercentageField
+          label="Maintenance"
+          tooltip="Budget for ongoing repairs and upkeep. A common rule of thumb is 1% of the property value per year, or ~10% of monthly rent."
+          value={data.maintenance}
+          type={data.maintenanceType}
+          onChange={(value) => updateField("maintenance", value)}
+          onTypeChange={(type) =>
+            handleMaintenanceTypeChange(data, onChange, type)
+          }
+        />
 
-        {/* Annual Rent Increase */}
-        <div>
-          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
-            Annual Rent Increase
-            <FieldTooltip text="The expected yearly increase in rent, applied each year of the rental period. Typically 2–5% to account for inflation and market growth." />
-          </label>
-          <CurrencyOrPercentageField
-            value={data.annualRentIncrease || "0"}
-            type={data.annualRentIncreaseType || "%"}
-            onChange={(value) => updateField("annualRentIncrease", value)}
-            onTypeChange={(type) =>
-              handleAnnualRentIncreaseTypeChange(data, onChange, type)
-            }
-          />
-        </div>
+        <LabeledCurrencyOrPercentageField
+          label="Annual Rent Increase"
+          tooltip="The expected yearly increase in rent, applied each year of the rental period. Typically 2–5% to account for inflation and market growth."
+          value={data.annualRentIncrease || "0"}
+          type={data.annualRentIncreaseType || "%"}
+          onChange={(value) => updateField("annualRentIncrease", value)}
+          onTypeChange={(type) =>
+            handleAnnualRentIncreaseTypeChange(data, onChange, type)
+          }
+        />
       </div>
     </div>
   );

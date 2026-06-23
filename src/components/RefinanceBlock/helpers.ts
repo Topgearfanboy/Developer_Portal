@@ -1,4 +1,6 @@
 import type { RefinanceBlockData } from "../../types";
+import { createTypeChangeHandler } from "../../utils/valueTypeConverter";
+import { calculateMonthlyPaymentBreakdown } from "../../utils/mortgageCalculator";
 
 export const updateField = <K extends keyof RefinanceBlockData>(
   data: RefinanceBlockData,
@@ -9,129 +11,101 @@ export const updateField = <K extends keyof RefinanceBlockData>(
   onChange({ ...data, [field]: value });
 };
 
-export function handleCostTypeChange(
+const getEstimatedValueBase = (data: RefinanceBlockData) =>
+  parseFloat(data.estimatedValue.replace(/[^0-9.]/g, "")) || 0;
+
+const getCostBase = (data: RefinanceBlockData) =>
+  parseFloat(data.cost.replace(/[^0-9.]/g, "")) || 0;
+
+export const handleCostTypeChange = (
   data: RefinanceBlockData,
   onChange: (data: RefinanceBlockData) => void,
   newType: "$" | "%",
-) {
-  const estimatedValueNum =
-    parseFloat(data.estimatedValue.replace(/[^0-9.]/g, "")) || 0;
-  const costNum = parseFloat(data.cost) || 0;
+) =>
+  createTypeChangeHandler(data, onChange, {
+    typeField: "costType",
+    valueField: "cost",
+    getBaseAmount: getEstimatedValueBase,
+  })(newType);
 
-  let convertedCost: string;
+export const handleClosingCostsTypeChange = (
+  data: RefinanceBlockData,
+  onChange: (data: RefinanceBlockData) => void,
+  newType: "$" | "%",
+) =>
+  createTypeChangeHandler(data, onChange, {
+    typeField: "closingCostsType",
+    valueField: "closingCosts",
+    getBaseAmount: getCostBase,
+  })(newType);
 
-  if (data.costType === "%" && newType === "$") {
-    convertedCost =
-      estimatedValueNum > 0
-        ? Math.round((costNum / 100) * estimatedValueNum).toString()
-        : data.cost;
-  } else if (data.costType === "$" && newType === "%") {
-    convertedCost =
-      estimatedValueNum > 0
-        ? ((costNum / estimatedValueNum) * 100).toFixed(2)
-        : data.cost;
-  } else {
-    convertedCost = data.cost;
-  }
+export const handlePropertyTaxesTypeChange = (
+  data: RefinanceBlockData,
+  onChange: (data: RefinanceBlockData) => void,
+  newType: "$" | "%",
+) =>
+  createTypeChangeHandler(data, onChange, {
+    typeField: "propertyTaxesType",
+    valueField: "propertyTaxes",
+    getBaseAmount: getCostBase,
+  })(newType);
 
-  onChange({
-    ...data,
-    costType: newType,
-    cost: convertedCost,
-  });
+export const handleHomeownersInsuranceTypeChange = (
+  data: RefinanceBlockData,
+  onChange: (data: RefinanceBlockData) => void,
+  newType: "$" | "%",
+) =>
+  createTypeChangeHandler(data, onChange, {
+    typeField: "homeownersInsuranceType",
+    valueField: "homeownersInsurance",
+    getBaseAmount: getCostBase,
+  })(newType);
+
+export interface RefinancePaymentSummary {
+  loanAmount: number;
+  principalAndInterest: number;
+  propertyTaxes: number;
+  homeownersInsurance: number;
+  totalMonthlyPayment: number;
 }
 
-export function handleClosingCostsTypeChange(
+export function calculateRefinancePaymentSummary(
   data: RefinanceBlockData,
-  onChange: (data: RefinanceBlockData) => void,
-  newType: "$" | "%",
-) {
-  const costNum = parseFloat(data.cost.replace(/[^0-9.]/g, "")) || 0;
-  const closingCostsNum = parseFloat(data.closingCosts) || 0;
+): RefinancePaymentSummary {
+  const estimatedValueNum = parseCurrencyValue(data.estimatedValue);
+  const costNum = parseCurrencyValue(data.cost);
+  const loanAmount =
+    data.costType === "%" ? (costNum / 100) * estimatedValueNum : costNum;
 
-  let convertedClosingCosts: string;
+  const termYears =
+    data.loanTerm === "custom"
+      ? parseInt(data.customLoanTerm) || 30
+      : parseInt(data.loanTerm) || 30;
 
-  if (data.closingCostsType === "%" && newType === "$") {
-    convertedClosingCosts =
-      costNum > 0
-        ? Math.round((closingCostsNum / 100) * costNum).toString()
-        : data.closingCosts;
-  } else if (data.closingCostsType === "$" && newType === "%") {
-    convertedClosingCosts =
-      costNum > 0
-        ? ((closingCostsNum / costNum) * 100).toFixed(2)
-        : data.closingCosts;
-  } else {
-    convertedClosingCosts = data.closingCosts;
-  }
+  const breakdown = calculateMonthlyPaymentBreakdown(
+    {
+      loanAmount,
+      annualInterestRate: parseFloat(data.interestRate) || 0,
+      loanTermYears: termYears,
+      interestOnly: data.interestOnlyOption,
+    },
+    {
+      baseValue: estimatedValueNum,
+      propertyTaxesValue: parseFloat(data.propertyTaxes) || 0,
+      propertyTaxesType: data.propertyTaxesType,
+      homeownersInsuranceValue: parseFloat(data.homeownersInsurance) || 0,
+      homeownersInsuranceType: data.homeownersInsuranceType,
+      annualHoa: 0,
+    },
+  );
 
-  onChange({
-    ...data,
-    closingCostsType: newType,
-    closingCosts: convertedClosingCosts,
-  });
-}
-
-export function handlePropertyTaxesTypeChange(
-  data: RefinanceBlockData,
-  onChange: (data: RefinanceBlockData) => void,
-  newType: "$" | "%",
-) {
-  const costNum = parseFloat(data.cost.replace(/[^0-9.]/g, "")) || 0;
-  const propertyTaxesNum = parseFloat(data.propertyTaxes) || 0;
-
-  let convertedPropertyTaxes: string;
-
-  if (data.propertyTaxesType === "%" && newType === "$") {
-    convertedPropertyTaxes =
-      costNum > 0
-        ? Math.round((propertyTaxesNum / 100) * costNum).toString()
-        : data.propertyTaxes;
-  } else if (data.propertyTaxesType === "$" && newType === "%") {
-    convertedPropertyTaxes =
-      costNum > 0
-        ? ((propertyTaxesNum / costNum) * 100).toFixed(2)
-        : data.propertyTaxes;
-  } else {
-    convertedPropertyTaxes = data.propertyTaxes;
-  }
-
-  onChange({
-    ...data,
-    propertyTaxesType: newType,
-    propertyTaxes: convertedPropertyTaxes,
-  });
-}
-
-export function handleHomeownersInsuranceTypeChange(
-  data: RefinanceBlockData,
-  onChange: (data: RefinanceBlockData) => void,
-  newType: "$" | "%",
-) {
-  const costNum = parseFloat(data.cost.replace(/[^0-9.]/g, "")) || 0;
-  const insuranceNum = parseFloat(data.homeownersInsurance) || 0;
-
-  let convertedInsurance: string;
-
-  if (data.homeownersInsuranceType === "%" && newType === "$") {
-    convertedInsurance =
-      costNum > 0
-        ? Math.round((insuranceNum / 100) * costNum).toString()
-        : data.homeownersInsurance;
-  } else if (data.homeownersInsuranceType === "$" && newType === "%") {
-    convertedInsurance =
-      costNum > 0
-        ? ((insuranceNum / costNum) * 100).toFixed(2)
-        : data.homeownersInsurance;
-  } else {
-    convertedInsurance = data.homeownersInsurance;
-  }
-
-  onChange({
-    ...data,
-    homeownersInsuranceType: newType,
-    homeownersInsurance: convertedInsurance,
-  });
+  return {
+    loanAmount,
+    principalAndInterest: breakdown.principalAndInterest,
+    propertyTaxes: breakdown.propertyTaxes,
+    homeownersInsurance: breakdown.homeownersInsurance,
+    totalMonthlyPayment: breakdown.total,
+  };
 }
 
 // Calculation helpers for analysis

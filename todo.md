@@ -1,5 +1,8 @@
 TODO:
 
+- holding balance in terms of months of mortgage
+- RLS implementation
+- Auto Format title to have each word be capitalized
 - Area Graph over time that shows the total income from a property and then the area under the curve is shaded to represent the different expenses
 - Add help messages
 - check cap rate formula

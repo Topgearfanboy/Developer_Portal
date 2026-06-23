@@ -1,7 +1,6 @@
 import type { SellBlockData } from "../../types";
-import { FieldTooltip } from "../shared/FieldTooltip";
 import { CurrencyField } from "../uiComponents/fieldTypes/CurrencyField";
-import { CurrencyOrPercentageField } from "../uiComponents/fieldTypes/CurrencyOrPercentageField";
+import { LabeledCurrencyOrPercentageField } from "../shared/LabeledCurrencyOrPercentageField";
 import { handleClosingCostsTypeChange } from "./helpers";
 
 interface SellBlockProps {
@@ -26,11 +25,9 @@ export function SellBlock({ data, onChange }: SellBlockProps) {
           onChange={(value) => updateField("sellPrice", value)}
         />
 
-        {/* Time to Sell - Months */}
         <div>
-          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
+          <label className="block text-sm font-medium text-text-muted mb-1">
             Time to Sell (Months)
-            <FieldTooltip text="Estimated months to find a buyer and close. During this period you continue to pay mortgage and holding costs but receive no rent." />
           </label>
           <select
             value={data.timeToSellMonths}
@@ -45,21 +42,16 @@ export function SellBlock({ data, onChange }: SellBlockProps) {
           </select>
         </div>
 
-        {/* Closing Costs */}
-        <div>
-          <label className="flex items-center gap-1 text-sm font-medium text-text-muted mb-1">
-            Closing Costs
-            <FieldTooltip text="Seller-side closing costs when you sell, typically 6–8% of the sale price. Includes real estate agent commissions, transfer taxes, and title fees." />
-          </label>
-          <CurrencyOrPercentageField
-            value={data.closingCosts}
-            type={data.closingCostsType}
-            onChange={(value) => updateField("closingCosts", value)}
-            onTypeChange={(type) =>
-              handleClosingCostsTypeChange(data, onChange, type)
-            }
-          />
-        </div>
+        <LabeledCurrencyOrPercentageField
+          label="Closing Costs"
+          tooltip="Seller-side closing costs when you sell, typically 6–8% of the sale price. Includes real estate agent commissions, transfer taxes, and title fees."
+          value={data.closingCosts}
+          type={data.closingCostsType}
+          onChange={(value) => updateField("closingCosts", value)}
+          onTypeChange={(type) =>
+            handleClosingCostsTypeChange(data, onChange, type)
+          }
+        />
       </div>
     </div>
   );

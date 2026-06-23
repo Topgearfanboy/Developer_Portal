@@ -19,6 +19,7 @@ const createMockData = (
     utilities: { county: "", electricity: "" },
     deferInterestPayments: false,
   },
+  arv: "",
   ...overrides,
 });
 

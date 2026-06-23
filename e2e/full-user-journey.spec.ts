@@ -166,11 +166,11 @@ test.describe.serial("Full User Journey", () => {
     await testPropertyCard
       .locator('button[aria-label="Delete property"]')
       .click();
-    await expect(page.locator('h3:has-text("Delete Property?")')).toBeVisible();
+    await expect(page.locator('h2:has-text("Delete Property?")')).toBeVisible();
     await page.click('button:has-text("Delete Property")');
 
     await expect(
-      page.locator('h3:has-text("Delete Property?")'),
+      page.locator('h2:has-text("Delete Property?")'),
     ).not.toBeVisible();
     await expect(
       page.locator("text=Failed to delete property"),
