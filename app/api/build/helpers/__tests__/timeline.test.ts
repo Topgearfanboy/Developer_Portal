@@ -227,4 +227,57 @@ describe("calculateTimeline", () => {
     expect(timeline[1].endDate.getMonth()).toBe(6); // July
     expect(timeline[1].endDate.getDate()).toBe(1);
   });
+
+  it("should handle sell block with carrying months", () => {
+    const blocks: Block[] = [
+      {
+        id: "1",
+        type: "buy",
+        data: {
+          cost: "$100000",
+          downpayment: "$20000",
+          downpaymentType: "$",
+          interestRate: "5",
+          loanTerm: "30",
+          customLoanTerm: "",
+          interestOnlyOption: false,
+          propertyTaxes: "3600",
+          propertyTaxesType: "$",
+          homeownersInsurance: "1200",
+          homeownersInsuranceType: "$",
+          annualHoa: "0",
+          closingCosts: "0",
+          closingCostsType: "$",
+          loanTermYears: 30,
+          loanAnalysis: {
+            incomeNeeded: "0",
+            maxLoanBasedOnArv: "0",
+            initialCash: "0",
+            savedForRenovation: "0",
+            minimumCashForProject: "0",
+          },
+        },
+      },
+      {
+        id: "2",
+        type: "sell",
+        data: {
+          sellPrice: "120000",
+          timeToSellMonths: "3",
+          closingCosts: "0",
+          closingCostsType: "$",
+        },
+      },
+    ];
+    const timeline = calculateTimeline(blocks, "2024-01-01");
+    expect(timeline).toHaveLength(2);
+    expect(timeline[0].type).toBe("buy");
+    expect(timeline[0].startDate).toEqual(new Date("2024-01-01"));
+    expect(timeline[0].endDate).toEqual(new Date("2024-01-01"));
+    expect(timeline[1].type).toBe("sell");
+    expect(timeline[1].startDate).toEqual(new Date("2024-01-01"));
+    expect(timeline[1].endDate.getFullYear()).toBe(2024);
+    expect(timeline[1].endDate.getMonth()).toBe(2); // March due to JS date normalization from Jan 1 + 3 months
+    expect(timeline[1].endDate.getDate()).toBe(31);
+  });
 });

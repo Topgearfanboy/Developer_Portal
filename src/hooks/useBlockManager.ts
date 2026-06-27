@@ -107,9 +107,9 @@ export function useBlockManager(
     }
   };
 
-  const updateBlockData = (id: string, data: Block["data"]) => {
-    setBlocks(blocks.map((b) => (b.id === id ? { ...b, data } : b)));
-  };
+  const updateBlockData = useCallback((id: string, data: Block["data"]) => {
+    setBlocks((prev) => prev.map((b) => (b.id === id ? { ...b, data } : b)));
+  }, []);
 
   // Calculate appreciated value based on purchase price and appreciation
   const calculateAppreciatedValue = useCallback(

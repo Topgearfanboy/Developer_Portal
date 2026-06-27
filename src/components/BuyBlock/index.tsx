@@ -45,7 +45,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div data-testid="buy-block" className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <CurrencyField
           label="Cost"
@@ -67,6 +67,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
           onTypeChange={(type) =>
             handleDownpaymentTypeChange(data, onChange, type)
           }
+          data-testid="buy-downpayment"
         />
 
         <LabeledCurrencyOrPercentageField

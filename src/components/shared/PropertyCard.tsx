@@ -20,9 +20,13 @@ export function PropertyCard({
   href,
 }: PropertyCardProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-border p-6 hover:shadow-lg hover:border-primary/50 transition-all group relative">
+    <div
+      data-testid="property-card"
+      className="bg-white rounded-xl shadow-sm border border-border p-6 hover:shadow-lg hover:border-primary/50 transition-all group relative"
+    >
       {onDelete && (
         <button
+          data-testid="delete-property-button"
           onClick={(e) => {
             e.stopPropagation();
             onDelete();

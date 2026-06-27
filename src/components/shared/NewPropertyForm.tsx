@@ -24,19 +24,21 @@ export function NewPropertyForm({ onSubmit, onCancel }: NewPropertyFormProps) {
     setTouched({ name: true, zipCode: true });
     if (name.trim() && !zipCodeError) {
       onSubmit(name, zipCode, county);
-      setName("");
-      setZipCode("");
-      setCounty("");
     }
   };
 
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-text mb-2">
+        <label
+          htmlFor="property-name"
+          className="block text-sm font-medium text-text mb-2"
+        >
           Property Name
         </label>
         <input
+          id="property-name"
+          data-testid="new-property-name"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -53,10 +55,15 @@ export function NewPropertyForm({ onSubmit, onCancel }: NewPropertyFormProps) {
       </div>
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="block text-sm font-medium text-text mb-2">
+          <label
+            htmlFor="property-zip"
+            className="block text-sm font-medium text-text mb-2"
+          >
             Zip Code
           </label>
           <input
+            id="property-zip"
+            data-testid="new-property-zip"
             type="text"
             value={zipCode}
             onChange={(e) => setZipCode(e.target.value)}
@@ -74,10 +81,15 @@ export function NewPropertyForm({ onSubmit, onCancel }: NewPropertyFormProps) {
           )}
         </div>
         <div className="flex-1">
-          <label className="block text-sm font-medium text-text mb-2">
+          <label
+            htmlFor="property-county"
+            className="block text-sm font-medium text-text mb-2"
+          >
             County
           </label>
           <input
+            id="property-county"
+            data-testid="new-property-county"
             type="text"
             value={county}
             onChange={(e) => setCounty(e.target.value)}
@@ -87,8 +99,14 @@ export function NewPropertyForm({ onSubmit, onCancel }: NewPropertyFormProps) {
         </div>
       </div>
       <div className="flex gap-3 pt-2">
-        <Button onClick={handleSubmit}>Create Property</Button>
-        <Button variant="secondary" onClick={onCancel}>
+        <Button onClick={handleSubmit} data-testid="create-property-button">
+          Create Property
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={onCancel}
+          data-testid="cancel-property-button"
+        >
           Cancel
         </Button>
       </div>

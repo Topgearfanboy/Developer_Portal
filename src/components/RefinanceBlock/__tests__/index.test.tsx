@@ -1,9 +1,30 @@
-import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { useState } from "react";
 import { RefinanceBlock } from "../index";
 import type { RefinanceBlockData } from "../../../types";
 
 const mockOnChange = jest.fn();
+
+function renderWithState(
+  initialData: RefinanceBlockData,
+): jest.Mock<(data: RefinanceBlockData) => void> {
+  const spy = jest.fn();
+  function Wrapper() {
+    const [data, setData] = useState(initialData);
+    return (
+      <RefinanceBlock
+        data={data}
+        onChange={(newData) => {
+          setData(newData);
+          spy(newData);
+        }}
+      />
+    );
+  }
+  render(<Wrapper />);
+  return spy;
+}
 
 const createMockData = (
   overrides: Partial<RefinanceBlockData> = {},
@@ -30,6 +51,10 @@ const createMockData = (
   annualHoa: "0",
   ...overrides,
 });
+
+function getMonthlyPaymentText(): string | null {
+  return screen.getByTestId("monthly-payment-summary").textContent;
+}
 
 describe("RefinanceBlock", () => {
   beforeEach(() => {
@@ -127,24 +152,24 @@ describe("RefinanceBlock", () => {
       expect(radioButtons[1]).not.toBeChecked();
     });
 
-    it("calls onChange when cash-out is selected", () => {
+    it("calls onChange when cash-out is selected", async () => {
+      const user = userEvent.setup();
       const data = createMockData({ cashOut: false });
       render(<RefinanceBlock data={data} onChange={mockOnChange} />);
 
-      const radioButtons = screen.getAllByRole("radio");
-      fireEvent.click(radioButtons[1]); // Click Cash Out
+      await user.click(screen.getByRole("radio", { name: "Cash Out" }));
 
       expect(mockOnChange).toHaveBeenCalledWith(
         expect.objectContaining({ cashOut: true }),
       );
     });
 
-    it("calls onChange when non cash-out is selected", () => {
+    it("calls onChange when non cash-out is selected", async () => {
+      const user = userEvent.setup();
       const data = createMockData({ cashOut: true });
       render(<RefinanceBlock data={data} onChange={mockOnChange} />);
 
-      const radioButtons = screen.getAllByRole("radio");
-      fireEvent.click(radioButtons[0]); // Click Non Cash-out
+      await user.click(screen.getByRole("radio", { name: "Non Cash-out" }));
 
       expect(mockOnChange).toHaveBeenCalledWith(
         expect.objectContaining({ cashOut: false }),
@@ -153,12 +178,14 @@ describe("RefinanceBlock", () => {
   });
 
   describe("Interest Only Option", () => {
-    it("toggles interest only checkbox", () => {
+    it("toggles interest only checkbox", async () => {
+      const user = userEvent.setup();
       const data = createMockData({ interestOnlyOption: false });
       render(<RefinanceBlock data={data} onChange={mockOnChange} />);
 
-      const checkbox = screen.getByRole("checkbox");
-      fireEvent.click(checkbox);
+      await user.click(
+        screen.getByRole("checkbox", { name: "Interest Only Loan" }),
+      );
 
       expect(mockOnChange).toHaveBeenCalledWith(
         expect.objectContaining({ interestOnlyOption: true }),
@@ -183,26 +210,30 @@ describe("RefinanceBlock", () => {
       ).not.toBeInTheDocument();
     });
 
-    it("accepts numeric input for custom loan term", () => {
-      const data = createMockData({ loanTerm: "custom", customLoanTerm: "" });
-      render(<RefinanceBlock data={data} onChange={mockOnChange} />);
+    it("accepts numeric input for custom loan term", async () => {
+      const user = userEvent.setup();
+      const spy = renderWithState(
+        createMockData({ loanTerm: "custom", customLoanTerm: "" }),
+      );
 
       const input = screen.getByPlaceholderText("Enter years");
-      fireEvent.change(input, { target: { value: "25" } });
+      await user.type(input, "25");
 
-      expect(mockOnChange).toHaveBeenCalledWith(
+      expect(spy).toHaveBeenLastCalledWith(
         expect.objectContaining({ customLoanTerm: "25" }),
       );
     });
 
-    it("filters non-numeric characters from custom loan term", () => {
-      const data = createMockData({ loanTerm: "custom", customLoanTerm: "" });
-      render(<RefinanceBlock data={data} onChange={mockOnChange} />);
+    it("filters non-numeric characters from custom loan term", async () => {
+      const user = userEvent.setup();
+      const spy = renderWithState(
+        createMockData({ loanTerm: "custom", customLoanTerm: "" }),
+      );
 
       const input = screen.getByPlaceholderText("Enter years");
-      fireEvent.change(input, { target: { value: "25abc" } });
+      await user.type(input, "25abc");
 
-      expect(mockOnChange).toHaveBeenCalledWith(
+      expect(spy).toHaveBeenLastCalledWith(
         expect.objectContaining({ customLoanTerm: "25" }),
       );
     });
@@ -215,14 +246,15 @@ describe("RefinanceBlock", () => {
       expect(screen.getByText("Remaining Equity")).toBeInTheDocument();
     });
 
-    it("toggles remaining equity details on click", () => {
+    it("toggles remaining equity details on click", async () => {
+      const user = userEvent.setup();
       const data = createMockData();
       render(<RefinanceBlock data={data} onChange={mockOnChange} />);
 
-      const toggleButton = screen
-        .getByText("Remaining Equity")
-        .closest("button");
-      fireEvent.click(toggleButton!);
+      const toggleButton = screen.getByRole("button", {
+        name: "Remaining Equity",
+      });
+      await user.click(toggleButton);
 
       // After clicking, the details should be visible
       expect(screen.getByText("Amount ($)")).toBeInTheDocument();
@@ -237,15 +269,16 @@ describe("RefinanceBlock", () => {
       expect(screen.getByText("Remaining Equity")).toBeInTheDocument();
     });
 
-    it("shows remaining equity fields when expanded", () => {
+    it("shows remaining equity fields when expanded", async () => {
+      const user = userEvent.setup();
       const data = createMockData();
       render(<RefinanceBlock data={data} onChange={mockOnChange} />);
 
       // Click to expand the section
-      const toggleButton = screen
-        .getByText("Remaining Equity")
-        .closest("button");
-      fireEvent.click(toggleButton!);
+      const toggleButton = screen.getByRole("button", {
+        name: "Remaining Equity",
+      });
+      await user.click(toggleButton);
 
       expect(screen.getByText("Amount ($)")).toBeInTheDocument();
       expect(screen.getByText("Percentage (%)")).toBeInTheDocument();
@@ -270,9 +303,7 @@ describe("RefinanceBlock", () => {
       render(<RefinanceBlock data={data} onChange={mockOnChange} />);
 
       // With 0% interest, $240,000 loan over 30 years = $240,000 / 360 = $666.67
-      const monthlyPaymentElement =
-        screen.getByText("Monthly Payment").nextElementSibling;
-      expect(monthlyPaymentElement?.textContent).toContain("$666.67");
+      expect(getMonthlyPaymentText()).toContain("$666.67");
     });
 
     it("calculates monthly payment correctly with percentage financed amount", () => {
@@ -293,9 +324,7 @@ describe("RefinanceBlock", () => {
 
       // 80% of $300,000 = $240,000 loan
       // With 0% interest over 30 years = $240,000 / 360 = $666.67
-      const monthlyPaymentElement =
-        screen.getByText("Monthly Payment").nextElementSibling;
-      expect(monthlyPaymentElement?.textContent).toContain("$666.67");
+      expect(getMonthlyPaymentText()).toContain("$666.67");
     });
 
     it("produces same monthly payment for equivalent % and $ financed amounts", () => {
@@ -316,8 +345,7 @@ describe("RefinanceBlock", () => {
       const { rerender } = render(
         <RefinanceBlock data={dataDollar} onChange={mockOnChange} />,
       );
-      const monthlyPaymentDollar =
-        screen.getByText("Monthly Payment").nextElementSibling?.textContent;
+      const monthlyPaymentDollar = getMonthlyPaymentText();
 
       // Test with equivalent percentage
       const dataPercent = createMockData({
@@ -334,8 +362,7 @@ describe("RefinanceBlock", () => {
         homeownersInsuranceType: "$",
       });
       rerender(<RefinanceBlock data={dataPercent} onChange={mockOnChange} />);
-      const monthlyPaymentPercent =
-        screen.getByText("Monthly Payment").nextElementSibling?.textContent;
+      const monthlyPaymentPercent = getMonthlyPaymentText();
 
       expect(monthlyPaymentDollar).toBe(monthlyPaymentPercent);
     });
@@ -357,9 +384,7 @@ describe("RefinanceBlock", () => {
       render(<RefinanceBlock data={data} onChange={mockOnChange} />);
 
       // Loan: $666.67 + Taxes: $300 = $966.67
-      const monthlyPaymentElement =
-        screen.getByText("Monthly Payment").nextElementSibling;
-      expect(monthlyPaymentElement?.textContent).toContain("$966.67");
+      expect(getMonthlyPaymentText()).toContain("$966.67");
     });
 
     it("includes property taxes in monthly payment when set as percentage", () => {
@@ -379,9 +404,7 @@ describe("RefinanceBlock", () => {
       render(<RefinanceBlock data={data} onChange={mockOnChange} />);
 
       // Loan: $666.67 + Taxes: ($300,000 * 0.015 / 12) = $375 = $1,041.67
-      const monthlyPaymentElement =
-        screen.getByText("Monthly Payment").nextElementSibling;
-      expect(monthlyPaymentElement?.textContent).toContain("$1,041.67");
+      expect(getMonthlyPaymentText()).toContain("$1,041.67");
     });
 
     it("includes insurance in monthly payment", () => {
@@ -401,9 +424,7 @@ describe("RefinanceBlock", () => {
       render(<RefinanceBlock data={data} onChange={mockOnChange} />);
 
       // Loan: $666.67 + Insurance: $100 = $766.67
-      const monthlyPaymentElement =
-        screen.getByText("Monthly Payment").nextElementSibling;
-      expect(monthlyPaymentElement?.textContent).toContain("$766.67");
+      expect(getMonthlyPaymentText()).toContain("$766.67");
     });
 
     it("calculates interest-only payment correctly", () => {
@@ -424,9 +445,7 @@ describe("RefinanceBlock", () => {
       render(<RefinanceBlock data={data} onChange={mockOnChange} />);
 
       // Interest only: $240,000 * 0.06 / 12 = $1,200
-      const monthlyPaymentElement =
-        screen.getByText("Monthly Payment").nextElementSibling;
-      expect(monthlyPaymentElement?.textContent).toContain("$1,200");
+      expect(getMonthlyPaymentText()).toContain("$1,200");
     });
   });
 });

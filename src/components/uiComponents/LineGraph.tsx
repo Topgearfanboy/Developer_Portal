@@ -104,7 +104,7 @@ export function LineGraph({
 
   return (
     <div
-      className="w-full h-80 bg-white rounded-xl shadow-sm border border-border p-4"
+      className="w-full flex flex-col min-h-80 bg-white rounded-xl shadow-sm border border-border p-4"
       onMouseLeave={() => onHoverIndexChange?.(null)}
     >
       <div className="flex items-center justify-between mb-4">
@@ -142,11 +142,15 @@ export function LineGraph({
         )}
       </div>
       {!data || data.length === 0 ? (
-        <div className="h-[85%] flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center">
           <p className="text-text-muted">No data available</p>
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height="85%">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          className="flex-1 min-h-60"
+        >
           <LineChart
             data={data}
             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}

@@ -17,10 +17,27 @@ export default {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
   setupFilesAfterEnv: ["<rootDir>/src/jest.setup.ts"],
-  testMatch: [
-    "**/__tests__/**/*.test.ts",
-    "**/__tests__/**/*.test.tsx",
-    "**/*.test.ts",
-    "**/*.test.tsx",
+  modulePathIgnorePatterns: [
+    "<rootDir>/.next",
+    "<rootDir>/coverage",
+    "<rootDir>/playwright-report",
+    "<rootDir>/test-results",
   ],
+  testMatch: [
+    "<rootDir>/src/**/*.test.ts",
+    "<rootDir>/src/**/*.test.tsx",
+    "<rootDir>/app/**/*.test.ts",
+    "<rootDir>/app/**/*.test.tsx",
+  ],
+  collectCoverageFrom: [
+    "src/**/*.{ts,tsx}",
+    "app/**/*.{ts,tsx}",
+    "!src/**/*.d.ts",
+    "!src/jest.setup.ts",
+    "!src/index.css",
+    "!**/*.config.*",
+    "!**/*.test.{ts,tsx}",
+  ],
+  coverageDirectory: "<rootDir>/coverage",
+  coverageReporters: ["text", "html", "lcov"],
 };

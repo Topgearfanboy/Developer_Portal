@@ -1,11 +1,12 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BuyBlock } from "../index";
+import { createBuyBlock } from "@/test/factories";
 import type { BuyBlockData } from "../../../types";
 
 const mockOnChange = jest.fn();
 
-const testData: BuyBlockData = {
+const testData = createBuyBlock({
   cost: "350000",
   interestRate: "7.5",
   downpayment: "15",
@@ -28,7 +29,7 @@ const testData: BuyBlockData = {
     savedForRenovation: "25000",
     minimumCashForProject: "75000",
   },
-};
+}).data as BuyBlockData;
 
 describe("BuyBlock", () => {
   beforeEach(() => {
@@ -38,91 +39,95 @@ describe("BuyBlock", () => {
   it("renders with test data values", () => {
     render(<BuyBlock data={testData} onChange={mockOnChange} />);
 
-    // Verify formatted currency/percentage values are visible
     expect(screen.getByDisplayValue("$350,000")).toBeInTheDocument();
     expect(screen.getByDisplayValue("7.50%")).toBeInTheDocument();
     expect(screen.getByDisplayValue("15.00%")).toBeInTheDocument();
   });
 
-  it("calculates and displays monthly payment", () => {
+  it("calculates and displays the exact monthly payment breakdown", () => {
     render(<BuyBlock data={testData} onChange={mockOnChange} />);
 
-    // Interest-only: $297,500 * 7.5% / 12 = ~$1,859
-    expect(screen.getByText(/monthly payment/i)).toBeTruthy();
-    // Verify breakdown labels are present (progress bar shows loan/tax/insurance/HOA)
-    expect(screen.getByText(/loan:/i)).toBeTruthy();
-    expect(screen.getByText(/tax:/i)).toBeTruthy();
-    expect(screen.getByText(/insurance:/i)).toBeTruthy();
+    // Interest-only P&I: $297,500 * 7.5% / 12 = $1,859.38
+    // Taxes: $350,000 * 1.2% / 12 = $350.00
+    // Insurance: $1,200 / 12 = $100.00
+    // Total: $2,309.38
+    expect(screen.getByText("Monthly Payment")).toBeInTheDocument();
+    expect(screen.getByText("$2,309.38")).toBeInTheDocument();
+    expect(screen.getByText("Loan: $1859")).toBeInTheDocument();
+    expect(screen.getByText("Tax: $350")).toBeInTheDocument();
+    expect(screen.getByText("Insurance: $100")).toBeInTheDocument();
   });
 
-  it("calculates and displays purchase summary details", () => {
-    render(<BuyBlock data={testData} onChange={mockOnChange} />);
-
-    // Expand the purchase summary section first
-    const toggleButton = screen.getByRole("button", {
-      name: /purchase summary/i,
-    });
-    fireEvent.click(toggleButton);
-
-    expect(screen.getAllByText(/purchase price/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/loan amount/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/down payment/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/closing costs/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/total cash needed/i)).toBeTruthy();
-  });
-
-  it("toggles purchase summary section when clicked", () => {
-    render(<BuyBlock data={testData} onChange={mockOnChange} />);
-
-    const toggleButton = screen.getByRole("button", {
-      name: /purchase summary/i,
-    });
-
-    // Section is collapsed by default, click to expand
-    fireEvent.click(toggleButton);
-    expect(screen.getByText(/purchase price/i)).toBeTruthy();
-
-    // Click again to collapse
-    fireEvent.click(toggleButton);
-    expect(screen.queryByText(/purchase price/i)).toBeFalsy();
-  });
-
-  it("updates cost field when changed", async () => {
+  it("expands and shows exact purchase summary details", async () => {
     const user = userEvent.setup();
     render(<BuyBlock data={testData} onChange={mockOnChange} />);
 
-    const inputs = screen.getAllByRole("textbox");
-    const costInput = inputs[0]; // First input is Cost
+    const toggleButton = screen.getByRole("button", {
+      name: /purchase summary/i,
+    });
+    await user.click(toggleButton);
+
+    expect(screen.getByText("Purchase Price")).toBeInTheDocument();
+    expect(screen.getByText("$350,000.00")).toBeInTheDocument();
+    expect(screen.getByText("Loan Amount")).toBeInTheDocument();
+    expect(screen.getByText("$297,500.00")).toBeInTheDocument();
+    expect(screen.getByText("Down Payment")).toBeInTheDocument();
+    expect(screen.getByText("$52,500.00")).toBeInTheDocument();
+    expect(screen.getAllByText("Closing Costs").length).toBeGreaterThan(0);
+    expect(screen.getByText("$17,500.00")).toBeInTheDocument();
+    expect(screen.getByText("Total Cash Needed")).toBeInTheDocument();
+    expect(screen.getByText("$70,000.00")).toBeInTheDocument();
+  });
+
+  it("toggles purchase summary section when clicked", async () => {
+    const user = userEvent.setup();
+    render(<BuyBlock data={testData} onChange={mockOnChange} />);
+
+    const toggleButton = screen.getByRole("button", {
+      name: /purchase summary/i,
+    });
+
+    await user.click(toggleButton);
+    expect(screen.getByText("Purchase Price")).toBeInTheDocument();
+
+    await user.click(toggleButton);
+    expect(screen.queryByText("Purchase Price")).not.toBeInTheDocument();
+  });
+
+  it("updates the cost field via the factory data-testid", async () => {
+    const user = userEvent.setup();
+    render(<BuyBlock data={testData} onChange={mockOnChange} />);
+
+    const costInput = screen.getByTestId("buy-cost");
     await user.clear(costInput);
     await user.type(costInput, "300000");
-    fireEvent.blur(costInput);
+    await user.tab();
 
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({ cost: "300000" }),
     );
   });
 
-  it("updates interest rate when changed", async () => {
+  it("updates the interest rate via the factory data-testid", async () => {
     const user = userEvent.setup();
     render(<BuyBlock data={testData} onChange={mockOnChange} />);
 
-    const inputs = screen.getAllByRole("textbox");
-    const rateInput = inputs[1]; // Second input is Interest Rate
+    const rateInput = screen.getByTestId("buy-interest-rate");
     await user.clear(rateInput);
     await user.type(rateInput, "5.5");
-    fireEvent.blur(rateInput);
+    await user.tab();
 
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({ interestRate: "5.5" }),
     );
   });
 
-  it("toggles interest only option when checkbox is clicked", () => {
+  it("toggles interest only option when checkbox is clicked", async () => {
+    const user = userEvent.setup();
     render(<BuyBlock data={testData} onChange={mockOnChange} />);
 
     const checkbox = screen.getByLabelText(/interest only option/i);
-    // Test data has interestOnlyOption: true, so clicking should toggle to false
-    fireEvent.click(checkbox);
+    await user.click(checkbox);
 
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -131,16 +136,16 @@ describe("BuyBlock", () => {
     );
   });
 
-  it("renders project planning section with values", () => {
+  it("renders project planning section with values", async () => {
+    const user = userEvent.setup();
     render(<BuyBlock data={testData} onChange={mockOnChange} />);
 
-    // Expand project planning section first
     const toggleButton = screen.getByRole("button", {
       name: /project planning/i,
     });
-    fireEvent.click(toggleButton);
+    await user.click(toggleButton);
 
-    expect(screen.getByText(/project planning/i)).toBeTruthy();
+    expect(screen.getByText("Project Planning")).toBeInTheDocument();
     expect(screen.getByDisplayValue("$85,000")).toBeInTheDocument();
     expect(screen.getByDisplayValue("$400,000")).toBeInTheDocument();
     expect(screen.getByDisplayValue("$50,000")).toBeInTheDocument();
@@ -148,28 +153,23 @@ describe("BuyBlock", () => {
     expect(screen.getByDisplayValue("$75,000")).toBeInTheDocument();
   });
 
-  it("calculates loan amount correctly", () => {
+  it("calculates loan amount correctly", async () => {
+    const user = userEvent.setup();
     render(<BuyBlock data={testData} onChange={mockOnChange} />);
 
-    // Expand the purchase summary section first
     const toggleButton = screen.getByRole("button", {
       name: /purchase summary/i,
     });
-    fireEvent.click(toggleButton);
+    await user.click(toggleButton);
 
-    // With $350,000 cost and 15% down, loan amount should be $297,500
-    expect(screen.getByText(/loan amount/i)).toBeTruthy();
-    expect(
-      screen.getByText((content) => content.includes("$297,500")),
-    ).toBeInTheDocument();
+    expect(screen.getByText("$297,500.00")).toBeInTheDocument();
   });
 
   it("displays segmented progress bar for monthly payment breakdown", () => {
     render(<BuyBlock data={testData} onChange={mockOnChange} />);
 
-    // Progress bar labels should be visible (monthly payment section is always visible)
-    expect(screen.getByText(/loan:/i)).toBeTruthy();
-    expect(screen.getByText(/tax:/i)).toBeTruthy();
-    expect(screen.getByText(/insurance:/i)).toBeTruthy();
+    expect(screen.getByText("Loan: $1859")).toBeInTheDocument();
+    expect(screen.getByText("Tax: $350")).toBeInTheDocument();
+    expect(screen.getByText("Insurance: $100")).toBeInTheDocument();
   });
 });

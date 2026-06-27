@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { toTitleCase } from "@/utils/formatting";
 import type { Property, Block, ProjectSettings } from "@/types";
 
 // GET /api/properties/[id] - Get a single property
@@ -127,7 +128,7 @@ export async function PUT(
     if (zipCode !== undefined)
       updateData.zipCode = zipCode?.trim().toLowerCase() || null;
     if (county !== undefined)
-      updateData.county = county?.trim().toLowerCase() || null;
+      updateData.county = county ? toTitleCase(county) : null;
     if (blocks !== undefined) updateData.blocks = blocks;
     if (projectSettings !== undefined)
       updateData.projectSettings = projectSettings;

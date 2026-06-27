@@ -26,10 +26,13 @@ test.describe.serial("Full User Journey", () => {
   });
 
   test.afterAll(async () => {
-    // Clean up test data
-    await cleanupTestUser(testUser.email);
-    await closePrisma();
-    await page.close();
+    try {
+      // Clean up test data
+      await cleanupTestUser(testUser.email);
+    } finally {
+      await closePrisma();
+      await page.close();
+    }
   });
 
   test("complete user journey - register, login, create property, add block, delete", async () => {
@@ -73,26 +76,27 @@ test.describe.serial("Full User Journey", () => {
     // ==========================================
     console.log("[E2E] Step 3: Creating property...");
 
-    await page.click('button:has-text("Add Property")');
-    await expect(page.locator('h2:has-text("New Property")')).toBeVisible();
+    await page.click('[data-testid="add-property-button"]');
+    await expect(
+      page.locator('[data-testid="new-property-modal"]'),
+    ).toBeVisible();
 
     const propertyName = `Test Property ${Date.now()}`;
+    await page.fill('[data-testid="new-property-name"]', propertyName);
+    await page.fill('[data-testid="new-property-zip"]', "90210");
     await page.fill(
-      'input[placeholder="e.g., Downtown Apartment"]',
-      propertyName,
-    );
-    await page.fill('input[placeholder="e.g., 90210"]', "90210");
-    await page.fill(
-      'input[placeholder="e.g., Los Angeles County"]',
+      '[data-testid="new-property-county"]',
       "Los Angeles County",
     );
-    await page.click('button:has-text("Create Property")');
+    await page.click('[data-testid="create-property-button"]');
 
-    await expect(page.locator('h2:has-text("New Property")')).not.toBeVisible();
+    await expect(
+      page.locator('[data-testid="new-property-modal"]'),
+    ).not.toBeVisible();
 
-    // Wait for the property card to appear with more specific selector
+    // Wait for the property card to appear
     const propertyCard = page
-      .locator(".bg-white")
+      .locator('[data-testid="property-card"]')
       .filter({ hasText: propertyName });
     await expect(propertyCard).toBeVisible({ timeout: 10000 });
 
@@ -128,15 +132,16 @@ test.describe.serial("Full User Journey", () => {
     await expect(page.locator("text=Buy Block")).toBeVisible();
 
     // Fill in Buy block details
-    const buyBlockSection = page
-      .locator(".bg-white")
-      .filter({ hasText: "Buy Block" })
-      .first();
+    const buyBlockSection = page.locator('[data-testid="buy-block"]');
     await expect(buyBlockSection).toBeVisible();
 
-    const purchasePriceInput = buyBlockSection.locator("input").first();
+    const purchasePriceInput = buyBlockSection.locator(
+      '[data-testid="buy-cost"]',
+    );
     await purchasePriceInput.fill("500000");
-    const downPaymentInput = buyBlockSection.locator("input").nth(1);
+    const downPaymentInput = buyBlockSection.locator(
+      '[data-testid="buy-downpayment"]',
+    );
     await downPaymentInput.fill("20");
 
     console.log("[E2E] ✓ Buy block added and configured");
@@ -146,7 +151,7 @@ test.describe.serial("Full User Journey", () => {
     // ==========================================
     console.log("[E2E] Step 5: Returning to dashboard...");
 
-    await page.click("text=Back to Dashboard");
+    await page.click('[data-testid="back-to-dashboard"]');
     await page.waitForURL("/", { timeout: 10000 });
     await expect(page.locator("h1")).toHaveText("Dashboard");
 
@@ -159,18 +164,20 @@ test.describe.serial("Full User Journey", () => {
 
     // Find the specific property card by name
     const testPropertyCard = page
-      .locator(".bg-white")
+      .locator('[data-testid="property-card"]')
       .filter({ hasText: propertyName });
     await expect(testPropertyCard).toBeVisible({ timeout: 10000 });
 
     await testPropertyCard
-      .locator('button[aria-label="Delete property"]')
+      .locator('[data-testid="delete-property-button"]')
       .click();
-    await expect(page.locator('h2:has-text("Delete Property?")')).toBeVisible();
-    await page.click('button:has-text("Delete Property")');
+    await expect(
+      page.locator('[data-testid="delete-property-modal"]'),
+    ).toBeVisible();
+    await page.click('[data-testid="confirm-delete-property-button"]');
 
     await expect(
-      page.locator('h2:has-text("Delete Property?")'),
+      page.locator('[data-testid="delete-property-modal"]'),
     ).not.toBeVisible();
     await expect(
       page.locator("text=Failed to delete property"),

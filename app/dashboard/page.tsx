@@ -77,7 +77,9 @@ export default function DashboardPage() {
 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Your Properties</h2>
-          <Button href="/">+ New Property</Button>
+          <Button href="/" data-testid="dashboard-new-property-button">
+            + New Property
+          </Button>
         </div>
 
         {properties.length === 0 ? (
@@ -87,7 +89,10 @@ export default function DashboardPage() {
             action={<Button href="/build">Create your first analysis</Button>}
           />
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div
+            data-testid="dashboard-property-grid"
+            className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+          >
             {properties.map((property) => (
               <PropertyCard
                 key={property.id}

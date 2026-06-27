@@ -1,4 +1,9 @@
-import { Block, RenovateBlockData, RentBlockData } from "@/types";
+import {
+  Block,
+  RenovateBlockData,
+  RentBlockData,
+  SellBlockData,
+} from "@/types";
 
 export interface TimelineEntry {
   type: string;
@@ -23,7 +28,11 @@ export function blockDurationMonths(block: Block): number {
     const years = parseInt(rentData.timeRentedYears) || 0;
     return months + years * 12;
   }
-  // Buy, refinance, and sell are instant blocks
+  if (block.type === "sell") {
+    const sellData = block.data as SellBlockData;
+    return parseInt(sellData.timeToSellMonths) || 0;
+  }
+  // Buy and refinance are instant blocks
   return 0;
 }
 
@@ -64,8 +73,11 @@ export function calculateTimeline(
       const months = parseInt(rentData.timeRentedMonths) || 0;
       const years = parseInt(rentData.timeRentedYears) || 0;
       durationMonths = months + years * 12;
+    } else if (block.type === "sell") {
+      const sellData = block.data as SellBlockData;
+      durationMonths = parseInt(sellData.timeToSellMonths) || 0;
     }
-    // Buy, refinance, and sell are instant blocks (durationMonths = 0)
+    // Buy and refinance are instant blocks (durationMonths = 0)
 
     const startDate = new Date(currentDate);
     const endDate = new Date(currentDate);

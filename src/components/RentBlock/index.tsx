@@ -44,12 +44,12 @@ export function RentBlock({ data, onChange }: RentBlockProps) {
         <TimePeriodSelector
           label="Time Rented"
           values={{
-            months: data.timeRentedMonths,
-            years: data.timeRentedYears,
+            timeRentedMonths: data.timeRentedMonths,
+            timeRentedYears: data.timeRentedYears,
           }}
           units={[
-            { key: "months", label: "Months", max: 12 },
-            { key: "years", label: "Years", max: 31 },
+            { key: "timeRentedMonths", label: "Months", max: 12 },
+            { key: "timeRentedYears", label: "Years", max: 31 },
           ]}
           onChange={(key, value) =>
             updateField(key as "timeRentedMonths" | "timeRentedYears", value)

@@ -9,6 +9,7 @@ interface ModalProps {
   children: ReactNode;
   footer?: ReactNode;
   size?: "sm" | "md" | "lg";
+  "data-testid"?: string;
 }
 
 const sizeClasses = {
@@ -24,11 +25,13 @@ export function Modal({
   children,
   footer,
   size = "md",
+  "data-testid": dataTestId,
 }: ModalProps) {
   if (!isOpen) return null;
 
   return (
     <div
+      data-testid={dataTestId}
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) {

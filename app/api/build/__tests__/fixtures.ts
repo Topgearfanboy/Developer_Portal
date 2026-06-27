@@ -1,4 +1,11 @@
-import { Block, BuyBlockData, RentBlockData, RefinanceBlockData, RenovateBlockData } from "@/types";
+import {
+  Block,
+  BuyBlockData,
+  RentBlockData,
+  RefinanceBlockData,
+  RenovateBlockData,
+  SellBlockData,
+} from "@/types";
 
 // Default loan analysis values
 const defaultLoanAnalysis = {
@@ -65,7 +72,9 @@ export function createRentBlock(overrides: Partial<RentBlockData> = {}): Block {
 /**
  * Creates a renovate block
  */
-export function createRenovateBlock(overrides: Partial<RenovateBlockData> = {}): Block {
+export function createRenovateBlock(
+  overrides: Partial<RenovateBlockData> = {},
+): Block {
   return {
     id: `renovate-${Date.now()}`,
     type: "renovate",
@@ -85,7 +94,9 @@ export function createRenovateBlock(overrides: Partial<RenovateBlockData> = {}):
 /**
  * Creates a refinance block
  */
-export function createRefinanceBlock(overrides: Partial<RefinanceBlockData> = {}): Block {
+export function createRefinanceBlock(
+  overrides: Partial<RefinanceBlockData> = {},
+): Block {
   return {
     id: `refinance-${Date.now()}`,
     type: "refinance",
@@ -114,20 +125,37 @@ export function createRefinanceBlock(overrides: Partial<RefinanceBlockData> = {}
 }
 
 /**
+ * Creates a sell block
+ */
+export function createSellBlock(overrides: Partial<SellBlockData> = {}): Block {
+  return {
+    id: `sell-${Date.now()}`,
+    type: "sell",
+    data: {
+      sellPrice: "350000",
+      timeToSellMonths: "3",
+      closingCosts: "6",
+      closingCostsType: "%",
+      ...overrides,
+    },
+  };
+}
+
+/**
  * Common block combinations for integration tests
  */
 export const TestScenarios = {
   // Simple buy + rent
-  buyAndRent: (buyOverrides?: Partial<BuyBlockData>, rentOverrides?: Partial<RentBlockData>): Block[] => [
-    createBuyBlock(buyOverrides),
-    createRentBlock(rentOverrides),
-  ],
+  buyAndRent: (
+    buyOverrides?: Partial<BuyBlockData>,
+    rentOverrides?: Partial<RentBlockData>,
+  ): Block[] => [createBuyBlock(buyOverrides), createRentBlock(rentOverrides)],
 
   // Buy + renovate + rent
   fullProject: (
     buyOverrides?: Partial<BuyBlockData>,
     renovateOverrides?: Partial<RenovateBlockData>,
-    rentOverrides?: Partial<RentBlockData>
+    rentOverrides?: Partial<RentBlockData>,
   ): Block[] => [
     createBuyBlock(buyOverrides),
     createRenovateBlock(renovateOverrides),
@@ -138,7 +166,7 @@ export const TestScenarios = {
   withRefinance: (
     buyOverrides?: Partial<BuyBlockData>,
     rentOverrides?: Partial<RentBlockData>,
-    refinanceOverrides?: Partial<RefinanceBlockData>
+    refinanceOverrides?: Partial<RefinanceBlockData>,
   ): Block[] => [
     createBuyBlock(buyOverrides),
     createRentBlock(rentOverrides),
@@ -150,11 +178,22 @@ export const TestScenarios = {
     buyOverrides?: Partial<BuyBlockData>,
     renovateOverrides?: Partial<RenovateBlockData>,
     rentOverrides?: Partial<RentBlockData>,
-    refinanceOverrides?: Partial<RefinanceBlockData>
+    refinanceOverrides?: Partial<RefinanceBlockData>,
   ): Block[] => [
     createBuyBlock(buyOverrides),
     createRenovateBlock(renovateOverrides),
     createRentBlock(rentOverrides),
     createRefinanceBlock(refinanceOverrides),
+  ],
+
+  // Buy + rent + sell
+  withSell: (
+    buyOverrides?: Partial<BuyBlockData>,
+    rentOverrides?: Partial<RentBlockData>,
+    sellOverrides?: Partial<SellBlockData>,
+  ): Block[] => [
+    createBuyBlock(buyOverrides),
+    createRentBlock(rentOverrides),
+    createSellBlock(sellOverrides),
   ],
 };

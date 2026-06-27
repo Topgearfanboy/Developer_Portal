@@ -462,6 +462,7 @@ export default function BuildProperty() {
         <header className="mb-8 flex items-center justify-between gap-4">
           <div>
             <button
+              data-testid="back-to-dashboard"
               onClick={() => router.push("/")}
               className="text-primary hover:text-primary-dark mb-2 flex items-center gap-1 text-sm font-medium"
             >
@@ -703,7 +704,7 @@ export default function BuildProperty() {
             </div>
           ))}
         </div>
-        <div className="flex gap-4 mt-6">
+        <div className="flex gap-4 mt-6 items-stretch">
           <div className="w-80 bg-white rounded-xl shadow-sm border border-border p-4 flex-shrink-0">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-text">Key Metrics</h3>

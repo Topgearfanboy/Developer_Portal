@@ -95,6 +95,7 @@ export default function Home() {
           <p className="text-text-muted">Manage your property investments</p>
         </div>
         <Button
+          data-testid="add-property-button"
           onClick={() => setShowNewPropertyForm(!showNewPropertyForm)}
           icon={<Plus className="w-5 h-5" />}
         >
@@ -106,6 +107,7 @@ export default function Home() {
         isOpen={showNewPropertyForm}
         onClose={() => setShowNewPropertyForm(false)}
         title="New Property"
+        data-testid="new-property-modal"
       >
         <NewPropertyForm
           onSubmit={(name, zipCode, county) => {
@@ -150,7 +152,10 @@ export default function Home() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          data-testid="property-grid"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           {properties.map((property) => (
             <PropertyCard
               key={property.id}
@@ -170,6 +175,7 @@ export default function Home() {
         isOpen={!!propertyToDelete}
         onClose={() => !isDeleting && setPropertyToDelete(null)}
         title="Delete Property?"
+        data-testid="delete-property-modal"
         footer={
           <>
             <Button
@@ -181,6 +187,7 @@ export default function Home() {
             </Button>
             <Button
               variant="danger"
+              data-testid="confirm-delete-property-button"
               onClick={async () => {
                 if (!propertyToDelete) return;
                 setIsDeleting(true);

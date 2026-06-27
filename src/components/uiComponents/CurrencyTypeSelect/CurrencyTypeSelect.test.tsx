@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { CurrencyTypeSelect } from "./index";
 
 const mockOnChange = jest.fn();
@@ -8,45 +9,52 @@ describe("CurrencyTypeSelect", () => {
     mockOnChange.mockClear();
   });
 
-  it("renders with dollar sign selected by default", () => {
-    render(<CurrencyTypeSelect value="$" onChange={mockOnChange} />);
+  function renderSelect(value: "$" | "%") {
+    return render(<CurrencyTypeSelect value={value} onChange={mockOnChange} />);
+  }
 
-    const select = screen.getByRole("combobox") as HTMLSelectElement;
-    expect(select).toBeTruthy();
-    expect(select.value).toBe("$");
+  it("renders with dollar sign selected by default", () => {
+    renderSelect("$");
+
+    const select = screen.getByRole("combobox");
+    expect(select).toHaveValue("$");
+    expect(screen.getByRole("option", { name: "$" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "%" })).toBeInTheDocument();
   });
 
   it("renders with percentage sign when selected", () => {
-    render(<CurrencyTypeSelect value="%" onChange={mockOnChange} />);
+    renderSelect("%");
 
-    const select = screen.getByRole("combobox") as HTMLSelectElement;
-    expect(select).toBeTruthy();
-    expect(select.value).toBe("%");
+    expect(screen.getByRole("combobox")).toHaveValue("%");
   });
 
-  it("calls onChange when selection changes to percentage", () => {
-    render(<CurrencyTypeSelect value="$" onChange={mockOnChange} />);
+  it("calls onChange when the user selects percentage", async () => {
+    const user = userEvent.setup();
+    renderSelect("$");
 
-    const select = screen.getByRole("combobox") as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: "%" } });
+    await user.selectOptions(screen.getByRole("combobox"), "%");
 
     expect(mockOnChange).toHaveBeenCalledWith("%");
   });
 
-  it("calls onChange when selection changes to dollar", () => {
-    render(<CurrencyTypeSelect value="%" onChange={mockOnChange} />);
+  it("calls onChange when the user selects dollar", async () => {
+    const user = userEvent.setup();
+    renderSelect("%");
 
-    const select = screen.getByRole("combobox") as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: "$" } });
+    await user.selectOptions(screen.getByRole("combobox"), "$");
 
     expect(mockOnChange).toHaveBeenCalledWith("$");
   });
 
-  it("has both $ and % options available", () => {
-    render(<CurrencyTypeSelect value="$" onChange={mockOnChange} />);
+  it("supports the combined variant", () => {
+    render(
+      <CurrencyTypeSelect
+        value="$"
+        onChange={mockOnChange}
+        variant="combined"
+      />,
+    );
 
-    const select = screen.getByRole("combobox") as HTMLSelectElement;
-    expect(select.querySelector('option[value="$"]')).toBeTruthy();
-    expect(select.querySelector('option[value="%"]')).toBeTruthy();
+    expect(screen.getByRole("combobox")).toHaveValue("$");
   });
 });

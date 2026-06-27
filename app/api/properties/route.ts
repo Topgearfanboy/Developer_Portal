@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { toTitleCase } from "@/utils/formatting";
 import type { Property, Block, ProjectSettings } from "@/types";
 
 // Validation schema for property creation
@@ -97,7 +98,7 @@ export async function POST(request: Request) {
       county: rawCounty,
     } = validationResult.data;
     const zipCode = rawZipCode?.trim().toLowerCase() || "";
-    const county = rawCounty?.trim().toLowerCase() || "";
+    const county = rawCounty ? toTitleCase(rawCounty) : "";
 
     let propertyTaxRate: number | null = null;
     const apiKey = process.env.NINJA_API_KEY;

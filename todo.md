@@ -1,10 +1,11 @@
 TODO:
 
+- error when making new home
+- logic to see if project is viable based off the buy
 - holding balance in terms of months of mortgage
+- Date picker for graph
 - RLS implementation
-- Auto Format title to have each word be capitalized
 - Area Graph over time that shows the total income from a property and then the area under the curve is shaded to represent the different expenses
-- Add help messages
 - check cap rate formula
 - Inflation rate to home calculator
 - comparison to a stock market portfolio
@@ -47,3 +48,6 @@ Completed:
   - property tax rate by zip code: https://api.api-ninjas.com/v1/zipcode
 - when a refiancing block is placed its intial estimated value should be the intial purchase price then affected by the est home appreciation rate and the time it has been since the inital purchase
 - Ai chat box in home evaluator
+- Add help messages
+- Auto Format title to have each word be capitalized
+- sell block

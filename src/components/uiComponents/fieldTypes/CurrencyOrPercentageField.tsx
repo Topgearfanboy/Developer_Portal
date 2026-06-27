@@ -23,10 +23,7 @@ export function CurrencyOrPercentageField({
 }: CurrencyOrPercentageFieldProps) {
   if (disabled) {
     return (
-      <div
-        className="flex border border-border rounded-lg overflow-hidden bg-bg-muted justify-between pointer-events-none opacity-60"
-        data-testid={dataTestId}
-      >
+      <div className="flex border border-border rounded-lg overflow-hidden bg-bg-muted justify-between pointer-events-none opacity-60">
         {type === "$" ? (
           <div className={width}>
             <CurrencyField
@@ -60,10 +57,7 @@ export function CurrencyOrPercentageField({
   }
 
   return (
-    <div
-      className="flex border border-border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary justify-between"
-      data-testid={dataTestId}
-    >
+    <div className="flex border border-border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary justify-between">
       {type === "$" ? (
         <div className={width}>
           <CurrencyField

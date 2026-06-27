@@ -3,6 +3,7 @@ import {
   RefinanceBlockData,
   RentBlockData,
   RenovateBlockData,
+  SellBlockData,
 } from "@/types";
 import { processBuyBlockData } from "./buyBlock";
 import { calculateLoanBalanceOverTime } from "./loanBalance";
@@ -156,6 +157,50 @@ function processRenovateBlockData(
   };
 }
 
+// Helper function to process sell block data
+function processSellBlockData(
+  blocks: Block[],
+  purchaseDayOffset: number = 0,
+): {
+  sellStartMonth: number;
+  sellDurationMonths: number;
+  sellCloseMonth: number;
+  netProceeds: number;
+} | null {
+  const sellBlock = blocks.find((block) => block.type === "sell");
+
+  if (!sellBlock) {
+    return null;
+  }
+
+  const sellData = sellBlock.data as SellBlockData;
+  const sellIndex = blocks.indexOf(sellBlock);
+
+  let sellStartMonth = purchaseDayOffset;
+  for (let i = 0; i < sellIndex; i++) {
+    sellStartMonth += blockDurationMonths(blocks[i]);
+  }
+
+  const sellDurationMonths = parseInt(sellData.timeToSellMonths) || 0;
+  const sellCloseMonth = sellStartMonth + sellDurationMonths;
+
+  const sellPrice =
+    parseFloat(sellData.sellPrice?.replace(/[^0-9.]/g, "") || "0") || 0;
+  const closingCostsRaw =
+    parseFloat(sellData.closingCosts?.replace(/[^0-9.]/g, "") || "0") || 0;
+  const closingCosts =
+    sellData.closingCostsType === "%"
+      ? (closingCostsRaw / 100) * sellPrice
+      : closingCostsRaw;
+
+  return {
+    sellStartMonth,
+    sellDurationMonths,
+    sellCloseMonth,
+    netProceeds: sellPrice - closingCosts,
+  };
+}
+
 export interface GraphDataPoint {
   date: string;
   investedCapital: number;
@@ -193,6 +238,7 @@ export function calculateGraphData(
 
   const rentBlockDataArray = processRentBlockData(blocks, purchaseDayOffset);
   const renovateBlockData = processRenovateBlockData(blocks, purchaseDayOffset);
+  const sellBlockData = processSellBlockData(blocks, purchaseDayOffset);
 
   if (!buyBlockData) {
     // Return static data if no buy block
@@ -433,13 +479,36 @@ export function calculateGraphData(
       ? (propertyTaxRate / 100) * propertyValue
       : propertyTaxes;
 
-  for (let i = 0; i < Math.min(loanBalances.length, maxMonths); i++) {
+  // When a sell block is present, the sale closes at the end of the carrying
+  // period, so the last owned month is the month immediately before the close boundary.
+  const saleMonthIndex = sellBlockData
+    ? Math.max(0, Math.ceil(sellBlockData.sellCloseMonth) - 1)
+    : null;
+  const loopEnd = Math.min(loanBalances.length, maxMonths);
+
+  for (let i = 0; i < loopEnd; i++) {
     const monthDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth() + i,
       1,
     );
     const dateStr = monthDate.toISOString().slice(0, 7); // YYYY-MM format
+
+    const isPostSale = sellBlockData && i > saleMonthIndex!;
+
+    if (isPostSale) {
+      // After the sale, the graph continues flat to the selected horizon with
+      // no property, expenses, or income.
+      graphData.push({
+        date: dateStr,
+        investedCapital: currentInvestedCapital,
+        cashOnHand: currentCashOnHand,
+        equity: 0,
+        remainingLoanBalance: 0,
+        monthlyNet: 0,
+      });
+      continue;
+    }
 
     // Apply home appreciation to property value
     if (i > 0 && estimatedHomeAppreciationRate > 0) {
@@ -658,11 +727,25 @@ export function calculateGraphData(
       }
     }
 
+    // At the sale close month, add net sale proceeds to cash on hand and pay off the loan.
+    // The investor receives sellPrice minus closing costs minus the remaining loan balance.
+    // The property is no longer owned after this point; subsequent months continue flat.
+    if (sellBlockData && i === saleMonthIndex) {
+      const netCashFromSale = sellBlockData.netProceeds - loanBalances[i];
+      monthlyCashFlow += netCashFromSale;
+      currentCashOnHand += netCashFromSale;
+      loanBalances[i] = 0;
+      for (let j = i + 1; j < loanBalances.length; j++) {
+        loanBalances[j] = 0;
+      }
+      propertyValue = 0;
+    }
+
     // Update monthly net to include cash on hand accumulation and loan principal paydown
     // Monthly net represents the total cash flow that goes to either cash on hand or loan principal
     // If monthlyCashFlow is positive, that cash goes to cash on hand or loan principal
     // If monthlyCashFlow is negative, that represents cash that had to be added from invested capital
-    if (rentBlockDataArray.length > 0) {
+    if (rentBlockDataArray.length > 0 || sellBlockData) {
       monthlyNet = monthlyCashFlow;
     }
 

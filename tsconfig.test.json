@@ -9,5 +9,11 @@
     ],
     "verbatimModuleSyntax": false
   },
-  "include": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/jest.setup.ts"]
+  "include": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/jest.setup.ts",
+    "app/**/*.test.ts",
+    "app/**/*.test.tsx"
+  ]
 }

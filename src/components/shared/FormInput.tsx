@@ -17,7 +17,12 @@ export function FormInput({
 }: FormInputProps) {
   return (
     <div className="flex items-center gap-2">
-      <label className="text-xs text-text-muted whitespace-nowrap">{label}</label>
+      <label
+        htmlFor={props.id}
+        className="text-xs text-text-muted whitespace-nowrap"
+      >
+        {label}
+      </label>
       <div className="relative">
         {prefix && (
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm">

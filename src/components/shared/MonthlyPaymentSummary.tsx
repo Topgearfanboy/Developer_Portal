@@ -52,17 +52,14 @@ export function MonthlyPaymentSummary({
   }
 
   return (
-    <div>
+    <div data-testid="monthly-payment-summary">
       <AnalysisItem
         label="Monthly Payment"
         value={totalValue}
         highlight
         noBorder
       />
-      <SegmentedProgressBar
-        segments={segments}
-        total={totalMonthlyPayment}
-      />
+      <SegmentedProgressBar segments={segments} total={totalMonthlyPayment} />
     </div>
   );
 }
