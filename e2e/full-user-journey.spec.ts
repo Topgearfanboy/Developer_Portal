@@ -48,6 +48,12 @@ test.describe.serial("Full User Journey", () => {
     await page.fill("input#email", testUser.email);
     await page.fill("input#password", testUser.password);
     await page.fill("input#confirmPassword", testUser.password);
+
+    await page.check("input#age");
+    await page.check("input#eu");
+    await page.check("input#terms");
+    await page.check("input#california");
+
     await page.click('button[type="submit"]');
 
     await page.waitForURL("/", { timeout: 10000 });
