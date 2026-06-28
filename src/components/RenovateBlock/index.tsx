@@ -35,7 +35,7 @@ export function RenovateBlock({
     useState(false);
 
   return (
-    <div className="space-y-4">
+    <div data-testid="renovate-block" className="space-y-4">
       <EditableItemList
         items={data.items}
         onChange={(items) =>
@@ -45,6 +45,7 @@ export function RenovateBlock({
         costField="cost"
         addLabel="+ Add Item"
         emptyMessage="No items added yet"
+        data-testid="renovate-items"
       />
 
       <TimePeriodSelector
@@ -55,6 +56,7 @@ export function RenovateBlock({
           { key: "months", label: "Months", max: 12, optional: true },
           { key: "years", label: "Years", max: 10, optional: true },
         ]}
+        data-testid="renovate-time"
         onChange={(key, value) =>
           updateTimeToRenovate(
             data,
@@ -74,6 +76,7 @@ export function RenovateBlock({
           value={data.arv}
           onChange={(value) => updateArv(data, onChange, value)}
           placeholder="$0"
+          data-testid="renovate-arv"
         />
       </div>
 
@@ -93,6 +96,7 @@ export function RenovateBlock({
                 updateUtilities(data, onChange, "county", value)
               }
               size="sm"
+              data-testid="renovate-utility-county"
             />
             <CurrencyField
               label="Electricity"
@@ -101,6 +105,7 @@ export function RenovateBlock({
                 updateUtilities(data, onChange, "electricity", value)
               }
               size="sm"
+              data-testid="renovate-utility-electricity"
             />
           </div>
         </div>
@@ -119,6 +124,7 @@ export function RenovateBlock({
               )
             }
             tooltip="When checked, mortgage interest payments during renovation are not counted as a monthly cost. Useful if your lender allows interest to accrue and be paid at closing."
+            data-testid="renovate-defer-interest"
           />
         </div>
       </CollapsibleSection>

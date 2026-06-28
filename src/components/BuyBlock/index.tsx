@@ -79,6 +79,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
           onTypeChange={(type) =>
             handleClosingCostsTypeChange(data, onChange, type)
           }
+          data-testid="buy-closing-costs"
         />
       </div>
 
@@ -92,6 +93,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
             customLoanTerm: value === "custom" ? data.customLoanTerm : value,
           });
         }}
+        data-testid="buy-loan-term"
         options={[
           { value: "10", label: "10" },
           { value: "15", label: "15" },
@@ -106,6 +108,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
           value={data.customLoanTerm}
           onChange={(value) => updateField("customLoanTerm", value)}
           placeholder="e.g., 20"
+          data-testid="buy-custom-loan-term"
         />
       )}
 
@@ -119,6 +122,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
             onTypeChange={(type) =>
               handlePropertyTaxesTypeChange(data, onChange, type)
             }
+            data-testid="buy-property-taxes"
           />
         </div>
 
@@ -130,6 +134,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
           <CurrencyField
             value={data.annualHoa}
             onChange={(value) => updateField("annualHoa", value)}
+            data-testid="buy-annual-hoa"
           />
         </div>
 
@@ -142,6 +147,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
             onTypeChange={(type) =>
               handleHomeownersInsuranceTypeChange(data, onChange, type)
             }
+            data-testid="buy-insurance"
           />
         </div>
       </div>
@@ -152,6 +158,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
         checked={data.interestOnlyOption}
         onChange={(checked) => updateField("interestOnlyOption", checked)}
         tooltip="When enabled, your monthly payment covers only the interest — no principal is paid down. This lowers monthly payments but builds no equity through repayment."
+        data-testid="buy-interest-only"
       />
 
       {/* Purchase Summary with always-visible Monthly Payment */}
@@ -281,6 +288,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
             value={data.loanAnalysis.incomeNeeded}
             onChange={(value) => updateLoanAnalysis("incomeNeeded", value)}
             size="sm"
+            data-testid="buy-income-needed"
           />
           <div>
             <FieldLabel
@@ -294,6 +302,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
                 updateLoanAnalysis("maxLoanBasedOnArv", value)
               }
               size="sm"
+              data-testid="buy-max-loan-arv"
             />
           </div>
           <CurrencyField
@@ -301,6 +310,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
             value={data.loanAnalysis.initialCash}
             onChange={(value) => updateLoanAnalysis("initialCash", value)}
             size="sm"
+            data-testid="buy-initial-cash"
           />
           <div>
             <FieldLabel
@@ -314,6 +324,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
                 updateLoanAnalysis("savedForRenovation", value)
               }
               size="sm"
+              data-testid="buy-saved-renovation"
             />
           </div>
           <div className="col-span-2">
@@ -324,6 +335,7 @@ export function BuyBlock({ data, onChange }: BuyBlockProps) {
                 updateLoanAnalysis("minimumCashForProject", value)
               }
               size="sm"
+              data-testid="buy-minimum-cash"
             />
           </div>
         </div>

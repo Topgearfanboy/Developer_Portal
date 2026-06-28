@@ -26,7 +26,7 @@ export function RefinanceBlock({ data, onChange }: RefinanceBlockProps) {
   const [remainingEquityExpanded, setRemainingEquityExpanded] = useState(false);
 
   return (
-    <div className="space-y-4">
+    <div data-testid="refinance-block" className="space-y-4">
       <RadioGroup
         name="cashOut"
         label="Refinance Type"
@@ -39,6 +39,7 @@ export function RefinanceBlock({ data, onChange }: RefinanceBlockProps) {
         onChange={(value) =>
           updateField(data, onChange, "cashOut", value === "true")
         }
+        data-testid="refinance-cash-out"
       />
 
       <div className="grid grid-cols-2 gap-4">
@@ -83,6 +84,7 @@ export function RefinanceBlock({ data, onChange }: RefinanceBlockProps) {
           onTypeChange={(type) =>
             handleClosingCostsTypeChange(data, onChange, type)
           }
+          data-testid="refinance-closing-costs"
         />
       </div>
 
@@ -97,6 +99,7 @@ export function RefinanceBlock({ data, onChange }: RefinanceBlockProps) {
         ]}
         value={data.loanTerm}
         onChange={(value) => updateField(data, onChange, "loanTerm", value)}
+        data-testid="refinance-loan-term"
       />
       {data.loanTerm === "custom" && (
         <div>
@@ -116,6 +119,7 @@ export function RefinanceBlock({ data, onChange }: RefinanceBlockProps) {
               )
             }
             placeholder="Enter years"
+            data-testid="refinance-custom-loan-term"
             className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
@@ -132,6 +136,7 @@ export function RefinanceBlock({ data, onChange }: RefinanceBlockProps) {
           onTypeChange={(type) =>
             handlePropertyTaxesTypeChange(data, onChange, type)
           }
+          data-testid="refinance-property-taxes"
         />
 
         <LabeledCurrencyOrPercentageField
@@ -144,6 +149,7 @@ export function RefinanceBlock({ data, onChange }: RefinanceBlockProps) {
           onTypeChange={(type) =>
             handleHomeownersInsuranceTypeChange(data, onChange, type)
           }
+          data-testid="refinance-insurance"
         />
       </div>
 
@@ -155,6 +161,7 @@ export function RefinanceBlock({ data, onChange }: RefinanceBlockProps) {
           updateField(data, onChange, "interestOnlyOption", checked)
         }
         tooltip="When enabled, your monthly payment covers only the interest — no principal is paid down. This lowers monthly payments but builds no equity through repayment."
+        data-testid="refinance-interest-only"
       />
 
       {/* Monthly Payment */}
@@ -193,6 +200,7 @@ export function RefinanceBlock({ data, onChange }: RefinanceBlockProps) {
               updateField(data, onChange, "remainingEquityAmount", value)
             }
             size="sm"
+            data-testid="refinance-remaining-equity-amount"
           />
           <PercentageField
             label="Percentage (%)"
@@ -201,6 +209,7 @@ export function RefinanceBlock({ data, onChange }: RefinanceBlockProps) {
               updateField(data, onChange, "remainingEquityPercent", value)
             }
             size="sm"
+            data-testid="refinance-remaining-equity-percent"
           />
         </div>
       </CollapsibleSection>

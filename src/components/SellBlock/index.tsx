@@ -17,12 +17,13 @@ export function SellBlock({ data, onChange }: SellBlockProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div data-testid="sell-block" className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <CurrencyField
           label="Sell Price"
           value={data.sellPrice}
           onChange={(value) => updateField("sellPrice", value)}
+          data-testid="sell-price"
         />
 
         <div>
@@ -32,6 +33,7 @@ export function SellBlock({ data, onChange }: SellBlockProps) {
           <select
             value={data.timeToSellMonths}
             onChange={(e) => updateField("timeToSellMonths", e.target.value)}
+            data-testid="sell-time-to-sell"
             className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-bg"
           >
             {Array.from({ length: 25 }, (_, i) => (
@@ -51,6 +53,7 @@ export function SellBlock({ data, onChange }: SellBlockProps) {
           onTypeChange={(type) =>
             handleClosingCostsTypeChange(data, onChange, type)
           }
+          data-testid="sell-closing-costs"
         />
       </div>
     </div>

@@ -9,6 +9,7 @@ interface CheckboxFieldProps {
   onChange: (checked: boolean) => void;
   tooltip?: string;
   disabled?: boolean;
+  "data-testid"?: string;
 }
 
 export function CheckboxField({
@@ -18,6 +19,7 @@ export function CheckboxField({
   onChange,
   tooltip,
   disabled = false,
+  "data-testid": dataTestId,
 }: CheckboxFieldProps) {
   return (
     <div className="flex items-center gap-2">
@@ -27,6 +29,7 @@ export function CheckboxField({
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}
+        data-testid={dataTestId}
         className="w-4 h-4 text-primary border-border rounded focus:ring-primary disabled:opacity-50"
       />
       <label htmlFor={id} className="text-sm font-medium">

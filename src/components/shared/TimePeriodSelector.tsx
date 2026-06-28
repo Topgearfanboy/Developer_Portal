@@ -15,6 +15,7 @@ interface TimePeriodSelectorProps {
   values: Record<string, string>;
   units: TimeUnit[];
   onChange: (key: string, value: string) => void;
+  "data-testid"?: string;
 }
 
 export function TimePeriodSelector({
@@ -23,6 +24,7 @@ export function TimePeriodSelector({
   values,
   units,
   onChange,
+  "data-testid": dataTestId,
 }: TimePeriodSelectorProps) {
   return (
     <div>
@@ -41,6 +43,7 @@ export function TimePeriodSelector({
             <select
               value={values[unit.key] ?? ""}
               onChange={(e) => onChange(unit.key, e.target.value)}
+              data-testid={dataTestId ? `${dataTestId}-${unit.key}` : undefined}
               className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white"
             >
               {unit.optional && <option value="">0</option>}

@@ -14,6 +14,7 @@ interface RadioGroupProps {
   options: RadioOption[];
   value: string;
   onChange: (value: string) => void;
+  "data-testid"?: string;
 }
 
 export function RadioGroup({
@@ -23,6 +24,7 @@ export function RadioGroup({
   options,
   value,
   onChange,
+  "data-testid": dataTestId,
 }: RadioGroupProps) {
   return (
     <div>
@@ -41,6 +43,9 @@ export function RadioGroup({
               name={name}
               checked={value === option.value}
               onChange={() => onChange(option.value)}
+              data-testid={
+                dataTestId ? `${dataTestId}-${option.value}` : undefined
+              }
               className="w-4 h-4 text-primary border-border focus:ring-primary"
             />
             <span className="text-sm">{option.label}</span>

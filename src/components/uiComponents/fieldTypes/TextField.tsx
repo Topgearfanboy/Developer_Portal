@@ -7,6 +7,7 @@ interface TextFieldProps {
   placeholder?: string;
   size?: "sm" | "md";
   fullWidth?: boolean;
+  "data-testid"?: string;
 }
 
 export function TextField({
@@ -16,6 +17,7 @@ export function TextField({
   placeholder,
   size = "md",
   fullWidth = true,
+  "data-testid": dataTestId,
 }: TextFieldProps) {
   const [inputValue, setInputValue] = useState(value);
   const [isFocused, setIsFocused] = useState(false);
@@ -55,6 +57,7 @@ export function TextField({
         onFocus={handleFocus}
         onBlur={handleBlur}
         placeholder={placeholder}
+        data-testid={dataTestId}
         className={`${fullWidth ? "w-full" : ""} px-3 ${inputClasses} border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary`}
       />
     </div>

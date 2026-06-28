@@ -12,6 +12,7 @@ interface EditableItemListProps<TItem> {
   placeholder?: string;
   addLabel?: string;
   emptyMessage?: string;
+  "data-testid"?: string;
 }
 
 export function EditableItemList<TItem>({
@@ -22,6 +23,7 @@ export function EditableItemList<TItem>({
   placeholder = "Item name",
   addLabel = "+ Add Item",
   emptyMessage = "No items added yet",
+  "data-testid": dataTestId,
 }: EditableItemListProps<TItem>) {
   const updateItem = (index: number, field: keyof TItem, value: string) => {
     const newItems = items.map((item, i) =>
@@ -47,6 +49,7 @@ export function EditableItemList<TItem>({
         </label>
         <button
           onClick={addItem}
+          data-testid={dataTestId ? `${dataTestId}-add` : undefined}
           className="text-sm text-primary hover:text-primary-dark font-medium"
         >
           {addLabel}
@@ -60,6 +63,9 @@ export function EditableItemList<TItem>({
               value={(item[nameField] as unknown as string) ?? ""}
               onChange={(e) => updateItem(index, nameField, e.target.value)}
               placeholder={placeholder}
+              data-testid={
+                dataTestId ? `${dataTestId}-item-${index}-name` : undefined
+              }
               className="flex-1 px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <input
@@ -74,6 +80,9 @@ export function EditableItemList<TItem>({
                 )
               }
               placeholder="$0"
+              data-testid={
+                dataTestId ? `${dataTestId}-item-${index}-cost` : undefined
+              }
               className="w-20 px-2 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
             />
             <button

@@ -26,6 +26,17 @@ export async function cleanupTestUser(email: string): Promise<void> {
 }
 
 /**
+ * Verify a user is marked inactive in the database
+ */
+export async function verifyUserInactive(email: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { isActive: true },
+  });
+  return user?.isActive === false;
+}
+
+/**
  * Generate unique test user credentials
  */
 export function generateTestUser() {

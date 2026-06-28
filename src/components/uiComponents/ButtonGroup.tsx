@@ -8,9 +8,16 @@ interface ButtonGroupProps {
   value: string;
   onChange: (value: string) => void;
   options: ButtonGroupOption[];
+  "data-testid"?: string;
 }
 
-export function ButtonGroup({ label, value, onChange, options }: ButtonGroupProps) {
+export function ButtonGroup({
+  label,
+  value,
+  onChange,
+  options,
+  "data-testid": dataTestId,
+}: ButtonGroupProps) {
   return (
     <div>
       <label className="block text-sm font-medium text-text-muted mb-2">
@@ -21,10 +28,13 @@ export function ButtonGroup({ label, value, onChange, options }: ButtonGroupProp
           <button
             key={option.value}
             onClick={() => onChange(option.value)}
+            data-testid={
+              dataTestId ? `${dataTestId}-${option.value}` : undefined
+            }
             className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
               value === option.value
-                ? 'bg-primary text-white'
-                : 'bg-white border border-border text-text-muted hover:bg-gray-50'
+                ? "bg-primary text-white"
+                : "bg-white border border-border text-text-muted hover:bg-gray-50"
             }`}
           >
             {option.label}

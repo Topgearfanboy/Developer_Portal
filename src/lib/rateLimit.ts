@@ -14,6 +14,11 @@ export function checkRateLimit(
   key: string,
   options: RateLimitOptions,
 ): { allowed: boolean; retryAfterMs: number } {
+  // Disable rate limiting in development so local/E2E testing isn't blocked
+  if (process.env.NODE_ENV === "development") {
+    return { allowed: true, retryAfterMs: 0 };
+  }
+
   const now = Date.now();
   const entry = store.get(key);
 

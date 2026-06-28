@@ -32,7 +32,7 @@ export function RentBlock({ data, onChange }: RentBlockProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div data-testid="rent-block" className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <CurrencyField
           label="Monthly Rent"
@@ -51,6 +51,7 @@ export function RentBlock({ data, onChange }: RentBlockProps) {
             { key: "timeRentedMonths", label: "Months", max: 12 },
             { key: "timeRentedYears", label: "Years", max: 31 },
           ]}
+          data-testid="rent-time"
           onChange={(key, value) =>
             updateField(key as "timeRentedMonths" | "timeRentedYears", value)
           }
@@ -63,6 +64,7 @@ export function RentBlock({ data, onChange }: RentBlockProps) {
           type={data.vacancyType}
           onChange={(value) => updateField("vacancy", value)}
           onTypeChange={(type) => handleVacancyTypeChange(data, onChange, type)}
+          data-testid="rent-vacancy"
         />
 
         <LabeledCurrencyOrPercentageField
@@ -74,6 +76,7 @@ export function RentBlock({ data, onChange }: RentBlockProps) {
           onTypeChange={(type) =>
             handleManagementTypeChange(data, onChange, type)
           }
+          data-testid="rent-management"
         />
 
         <LabeledCurrencyOrPercentageField
@@ -85,6 +88,7 @@ export function RentBlock({ data, onChange }: RentBlockProps) {
           onTypeChange={(type) =>
             handleMaintenanceTypeChange(data, onChange, type)
           }
+          data-testid="rent-maintenance"
         />
 
         <LabeledCurrencyOrPercentageField
@@ -96,6 +100,7 @@ export function RentBlock({ data, onChange }: RentBlockProps) {
           onTypeChange={(type) =>
             handleAnnualRentIncreaseTypeChange(data, onChange, type)
           }
+          data-testid="rent-annual-rent-increase"
         />
       </div>
     </div>
