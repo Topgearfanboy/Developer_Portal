@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
 import type {
   Block,
@@ -22,19 +23,32 @@ import {
   blockTypeColors,
   getBlockDotColor,
 } from "@/utils/blockHelpers";
-import { LineGraph } from "@/components/uiComponents/LineGraph";
 import { MetricCard } from "@/components/shared/MetricCard";
 import { ProjectSettingsPanel } from "@/components/BuildPage/ProjectSettingsPanel";
 import { useProjectSettings } from "@/hooks/useProjectSettings";
 import { useBlockManager } from "@/hooks/useBlockManager";
 import { calculateKeyMetrics } from "@/utils/metrics";
 import { getPropertyById, saveProperty } from "@/utils/propertyStorage";
-import { ChatPanel } from "@/components/shared/ChatPanel";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Alert } from "@/components/shared/Alert";
 import { Button } from "@/components/uiComponents/Button";
 import { DropdownMenu } from "@/components/uiComponents/DropdownMenu";
 import { IconButton } from "@/components/uiComponents/IconButton";
+
+const LineGraph = dynamic(
+  () =>
+    import("@/components/uiComponents/LineGraph").then((m) => ({
+      default: m.LineGraph,
+    })),
+  { ssr: false },
+);
+const ChatPanel = dynamic(
+  () =>
+    import("@/components/shared/ChatPanel").then((m) => ({
+      default: m.ChatPanel,
+    })),
+  { ssr: false },
+);
 
 interface GraphDataPoint {
   date: string;
@@ -285,23 +299,25 @@ export default function BuildProperty() {
         }
         const result = await response.json();
 
-        console.log({
-          debug: "API_SYNC",
-          blocks: blocks.map((b) => ({
-            id: b.id,
-            type: b.type,
-            data: b.data,
-          })),
-          graphData: {
-            length: result.graphData?.length || 0,
-            data: result.graphData || [],
-            sample: result.graphData?.slice(0, 3) || [],
-          },
-          monthlyPayment: result.monthlyPayment,
-          loanOverlapMonthsMap: result.loanOverlapMonthsMap,
-          debugBlocksSetup: result.debug?.blocks || null,
-          fullResponse: { ...result, debug: undefined },
-        });
+        if (process.env.NEXT_PUBLIC_DEBUG_LOGS === "true") {
+          console.log({
+            debug: "API_SYNC",
+            blocks: blocks.map((b) => ({
+              id: b.id,
+              type: b.type,
+              data: b.data,
+            })),
+            graphData: {
+              length: result.graphData?.length || 0,
+              data: result.graphData || [],
+              sample: result.graphData?.slice(0, 3) || [],
+            },
+            monthlyPayment: result.monthlyPayment,
+            loanOverlapMonthsMap: result.loanOverlapMonthsMap,
+            debugBlocksSetup: result.debug?.blocks || null,
+            fullResponse: { ...result, debug: undefined },
+          });
+        }
 
         if (result.debug) {
           if (result.debug.blocks && result.debug.blocks.length > 0) {
@@ -366,9 +382,11 @@ export default function BuildProperty() {
       }
     };
 
-    if (blocks.length > 0) {
+    if (blocks.length === 0) return;
+    const syncTimer = setTimeout(() => {
       void syncBlocks();
-    }
+    }, 500);
+    return () => clearTimeout(syncTimer);
   }, [
     blocks,
     selectedYears,
@@ -406,18 +424,20 @@ export default function BuildProperty() {
         }
         const result = await response.json();
         if (result.metrics) {
-          console.log({
-            debug: "METRICS_CALCULATION",
-            metrics: result.metrics,
-            roi: result.metrics.roi,
-            annualizedRoi: result.metrics.annualizedRoi,
-            cashOnCashReturn: result.metrics.cashOnCashReturn,
-            capRate: result.metrics.capRate,
-            netOperatingIncome: result.metrics.netOperatingIncome,
-            netPresentValue: result.metrics.netPresentValue,
-            totalProfit: result.metrics.totalProfit,
-            timeToPayOffLoan: result.metrics.timeToPayOffLoan,
-          });
+          if (process.env.NEXT_PUBLIC_DEBUG_LOGS === "true") {
+            console.log({
+              debug: "METRICS_CALCULATION",
+              metrics: result.metrics,
+              roi: result.metrics.roi,
+              annualizedRoi: result.metrics.annualizedRoi,
+              cashOnCashReturn: result.metrics.cashOnCashReturn,
+              capRate: result.metrics.capRate,
+              netOperatingIncome: result.metrics.netOperatingIncome,
+              netPresentValue: result.metrics.netPresentValue,
+              totalProfit: result.metrics.totalProfit,
+              timeToPayOffLoan: result.metrics.timeToPayOffLoan,
+            });
+          }
           setMetrics(result.metrics);
         }
       } catch (error) {
@@ -428,9 +448,11 @@ export default function BuildProperty() {
       }
     };
 
-    if (blocks.length > 0) {
+    if (blocks.length === 0) return;
+    const metricsTimer = setTimeout(() => {
       void calculateMetrics();
-    }
+    }, 500);
+    return () => clearTimeout(metricsTimer);
   }, [
     blocks,
     selectedYears,

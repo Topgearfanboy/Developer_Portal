@@ -1,7 +1,6 @@
 TODO:
 
-- implement captchas
-- error when making new home
+- implement captchas for sign up
 - logic to see if project is viable based off the buy
 - holding balance in terms of months of mortgage
 - Date picker for graph
@@ -52,3 +51,4 @@ Completed:
 - Add help messages
 - Auto Format title to have each word be capitalized
 - sell block
+- error when making new home
