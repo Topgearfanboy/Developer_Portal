@@ -63,12 +63,6 @@ export function Navbar() {
           >
             Dashboard
           </Link>
-          <Link
-            href="/reports"
-            className="text-text-muted hover:text-text transition-colors"
-          >
-            Reports
-          </Link>
           <div className="w-px h-5 bg-border"></div>
           {!isLoading && (
             <>
