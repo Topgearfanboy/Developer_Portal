@@ -45,6 +45,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!user.isActive) {
+      return NextResponse.json(
+        { error: "This account has been deactivated." },
+        { status: 403 },
+      );
+    }
+
     // Verify password
     const isValid = await verifyPassword(password, user.password);
 

@@ -1,5 +1,6 @@
 TODO:
 
+- implement captchas
 - error when making new home
 - logic to see if project is viable based off the buy
 - holding balance in terms of months of mortgage

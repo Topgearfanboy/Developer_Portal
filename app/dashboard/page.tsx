@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/uiComponents/Navbar";
 import { getProperties } from "@/utils/propertyStorage";
 import { Button } from "@/components/uiComponents/Button";
 import { Alert } from "@/components/shared/Alert";
@@ -66,8 +65,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
           <Alert className="mb-6" title="Error">

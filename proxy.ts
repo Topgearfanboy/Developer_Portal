@@ -5,6 +5,10 @@ import { verifyToken } from "./src/lib/auth";
 const PUBLIC_ROUTES = [
   "/login",
   "/register",
+  "/terms",
+  "/privacy",
+  "/contact",
+  "/api/contact",
   "/api/auth/login",
   "/api/auth/register",
   "/api/auth/logout",

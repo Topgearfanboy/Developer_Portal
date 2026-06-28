@@ -16,6 +16,7 @@ export async function GET() {
         id: true,
         email: true,
         name: true,
+        isActive: true,
         createdAt: true,
         updatedAt: true,
         properties: {
@@ -32,6 +33,13 @@ export async function GET() {
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    if (!user.isActive) {
+      return NextResponse.json(
+        { error: "Account deactivated" },
+        { status: 401 },
+      );
     }
 
     return NextResponse.json({ user });
